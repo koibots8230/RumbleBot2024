@@ -21,25 +21,25 @@ import monologue.Annotations.Log;
 
 public class Shooter extends SubsystemBase implements Logged {
 
-    private CANSparkMax topMotor;
-    private CANSparkMax bottomMotor;
+    private final CANSparkMax topMotor;
+    private final CANSparkMax bottomMotor;
 
-    private SparkPIDController topController;
-    private SparkPIDController bottomController;
+    private final SparkPIDController topController;
+    private final SparkPIDController bottomController;
 
-    private RelativeEncoder topEncoder;
-    private RelativeEncoder bottomEncoder;
+    private final RelativeEncoder topEncoder;
+    private final RelativeEncoder bottomEncoder;
 
-    private DCMotorSim topSimMotor;
-    private DCMotorSim bottomSimMotor;
+    private final DCMotorSim topSimMotor;
+    private final DCMotorSim bottomSimMotor;
 
-    private PIDController topSimPID;
-    private PIDController bottomSimPID;
+    private final PIDController topSimPID;
+    private final PIDController bottomSimPID;
 
-    private SimpleMotorFeedforward topSimFeedforward;
-    private SimpleMotorFeedforward bottomSimFeedforward;
+    private final SimpleMotorFeedforward topSimFeedforward;
+    private final SimpleMotorFeedforward bottomSimFeedforward;
 
-    boolean isReal;
+    private final boolean isReal;
 
     @Log
     private double topSetpoint;
@@ -63,53 +63,55 @@ public class Shooter extends SubsystemBase implements Logged {
 
     public Shooter(boolean isReal) {
         this.isReal = isReal;
+
+        topMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
+        bottomMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
+        topController = topMotor.getPIDController();
+        bottomController = bottomMotor.getPIDController();
+        topEncoder = topMotor.getEncoder();
+        bottomEncoder = bottomMotor.getEncoder();
+
+        topSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
+        bottomSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
+
+        topSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.TOP_FEEDFORWARD_CONSTANTS_IO.kv);
+        bottomSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.BOTTOM_FEEDFORWARD_CONSTANTS_IO.kv);
+
+        topSimPID = new PIDController(ShooterConstants.TOP_PID_CONSTANTS_IO.kP, 0.0, 0.00);
+        bottomSimPID = new PIDController(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kP, 0.0, 0.00);
+
         if (Robot.isReal()) {
-            topMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
             topMotor.restoreFactoryDefaults();
             topMotor.setInverted(ShooterConstants.TOP_MOTOR_CONSTANTS_IO.inverted);
             topMotor.setSmartCurrentLimit(ShooterConstants.TOP_MOTOR_CONSTANTS_IO.currentLimit);
             topMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONSTANTS_IO.idleMode);
 
-            bottomMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
             bottomMotor.restoreFactoryDefaults();
             topMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONSTANTS_IO.currentLimit);
             topMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONSTANTS_IO.idleMode);
 
-            topController = topMotor.getPIDController();
+            
 
             topController.setP(ShooterConstants.TOP_PID_CONSTANTS_IO.kP);
             topController.setI(ShooterConstants.TOP_PID_CONSTANTS_IO.kI);
             topController.setD(ShooterConstants.TOP_PID_CONSTANTS_IO.kD);
             topController.setFF(ShooterConstants.TOP_FEEDFORWARD_CONSTANTS_IO.kv);
 
-            bottomController = bottomMotor.getPIDController();
+            
 
             bottomController.setP(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kP);
             bottomController.setI(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kI);
             bottomController.setD(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kD);
             bottomController.setFF(ShooterConstants.BOTTOM_FEEDFORWARD_CONSTANTS_IO.kv);
 
-            topEncoder = topMotor.getEncoder();
-            bottomEncoder = bottomMotor.getEncoder();
+            
 
             topEncoder.setMeasurementPeriod(16);
             bottomEncoder.setMeasurementPeriod(16);
 
             topEncoder.setAverageDepth(2);
             bottomEncoder.setAverageDepth(2);
-        } else {
-
-            topSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
-            bottomSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
-
-            topSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.TOP_FEEDFORWARD_CONSTANTS_IO.kv);
-            bottomSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.BOTTOM_FEEDFORWARD_CONSTANTS_IO.kv);
-
-            topSimPID = new PIDController(ShooterConstants.TOP_PID_CONSTANTS_IO.kP, 0.0, 0.00);
-            bottomSimPID = new PIDController(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kP, 0.0, 0.00);
-
-
-        }
+        } 
     }
 
     @Override

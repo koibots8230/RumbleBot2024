@@ -20,13 +20,17 @@ public class RobotContainer implements Logged {
 
   private final Shooter shooterSubsystem;
 
+  private final boolean isReal;
+
   private final XboxController controller;
 
-  public RobotContainer() {
+  public RobotContainer(boolean isReal) {
+
+    this.isReal = isReal;
 
     controller = new XboxController(0);
 
-    shooterSubsystem = new Shooter(Robot.isReal());
+    shooterSubsystem = new Shooter(isReal);
 
     Monologue.setupMonologue(
         this, "Robot", false,
