@@ -19,20 +19,125 @@ public class MotorSim implements Motor{
     private Measure<Angle> prevPosition;
     private double velocityFactor;
     private double positionFactor;
+    private final PIDController pidController;
+    private double FF;
+    private boolean useAbsoluteEncoder;
+    private boolean inverted;
+    private IdleMode idleMode;
 
-    public MotorSim(int ID, double P, double I, double D, double FF, double velocityFactor, double positionFactor) {
+    public MotorSim(int ID) {
         velocity = Units.RPM.zero();
         position = Units.Rotations.zero();
         prevPosition = Units.Rotations.zero();
         simDevice = SimDevice.create("Motor [".concat(String.valueOf(ID)).concat("]"));
         simVelocity = simDevice.createDouble("Velocity (Likely RPM)", SimDevice.Direction.kOutput, 0);
         simVelocityFactor = simDevice.createDouble("Velocity Factor", SimDevice.Direction.kOutput, 0);
-        simVelocityPreconv = simDevice.createDouble("Velocity Pre-conversion", SimDevice.Direction.kOutput, 0);
+        simVelocityPreconv = simDevice.createDouble("Velocity Pre-conversion (RPM)", SimDevice.Direction.kOutput, 0);
         simPosition = simDevice.createDouble("Position (Likely Rotations)", SimDevice.Direction.kOutput, 0);
         simPositionFactor = simDevice.createDouble("Position Factor", SimDevice.Direction.kOutput, 0);
-        simPositionPreconv = simDevice.createDouble("Position Pre-conversion", SimDevice.Direction.kOutput, 0);
+        simPositionPreconv = simDevice.createDouble("Position Pre-conversion (Rotations)", SimDevice.Direction.kOutput, 0);
+        pidController = new PIDController(0, 0, 0);
+        velocityFactor = 1;
+        positionFactor = 1;
+        FF = 0;
+        inverted = false;
+        idleMode = IdleMode.COAST;
+    }
+
+    @Override
+    public void setP(double P) {
+        pidController.setP(P);
+    }
+
+    @Override
+    public void setI(double I) {
+        pidController.setI(I);
+    }
+
+    @Override
+    public void setD(double D) {
+        pidController.setD(D);
+    }
+
+    @Override
+    public void setFF(double FF) {
+        this.FF = FF;                    // TODO: implement a simple feedforward
+    }
+
+    @Override
+    public void setVelocityFactor(double velocityFactor) {
         this.velocityFactor = velocityFactor;
+    }
+
+    @Override
+    public void setPositionFactor(double positionFactor) {
         this.positionFactor = positionFactor;
+    }
+
+    @Override
+    public void setHasAbsoluteEncoder(boolean hasAbsoluteEncoder) {
+        useAbsoluteEncoder = hasAbsoluteEncoder;
+    }
+
+    @Override
+    public void setCANTimeout(Measure<Time> canTimeout) {}
+
+    @Override
+    public void setInverted(boolean inverted) {
+        this.inverted = inverted;
+    }
+
+    @Override
+    public void setCurrentLimit(Measure<Current> currentLimit) {}
+
+    @Override
+    public void setIdleMode(IdleMode idleMode) {
+        this.idleMode = idleMode;
+    }
+
+    @Override
+    public double getP() {
+        return pidController.getP();
+    }
+
+    @Override
+    public double getI() {
+        return pidController.getI();
+    }
+
+    @Override
+    public double getD() {
+        return pidController.getD();
+    }
+
+    @Override
+    public double getFF() {
+        return FF;
+    }
+
+    @Override
+    public double getVelocityFactor() {
+        return velocityFactor;
+    }
+
+    @Override
+    public double getPositionFactor() {
+        return positionFactor;
+    }
+
+    @Override
+    public boolean getHasAbsoluteEncoder() {
+        return useAbsoluteEncoder;
+    }
+
+    @Override
+    public boolean getInverted() {
+        return inverted;
+    }
+
+    @Override
+    public IdleMode getIdleMode() {
+        return idleMode;
     }
 
     @Override
