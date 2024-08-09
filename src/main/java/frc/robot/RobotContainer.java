@@ -4,24 +4,36 @@
 
 package frc.robot;
 
+import static edu.wpi.first.units.Units.Inches;
+
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.subsystems.Elevator;
 import monologue.Logged;
 import monologue.Monologue;
 
 public class RobotContainer implements Logged {
-  public RobotContainer() {
 
-    Monologue.setupMonologue(
-                                this, "Robot", false,
-                                false);
+  private GenericHID controller;
+
+  private Elevator elevator;
+
+  public RobotContainer(boolean isReal) {
+    controller = new GenericHID(0);
+
+    elevator = new Elevator(isReal);
+
+    Monologue.setupMonologue(this, "Robot", false, false);
 
     configureBindings();
   }
 
   private void configureBindings() {
-
-    
+    Trigger elevatorUp = new Trigger(() -> controller.getRawButton(1));
+    elevatorUp.onTrue(elevator.setPosition(Inches.of(3)));
+    elevatorUp.onFalse(elevator.setPosition(Inches.of(0)));
   }
 
   public Command getAutonomousCommand() {
