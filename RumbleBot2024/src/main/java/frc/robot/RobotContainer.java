@@ -32,9 +32,7 @@ public class RobotContainer implements Logged {
 
     shooterSubsystem = new Shooter(isReal);
 
-    Monologue.setupMonologue(
-        this, "Robot", false,
-        false);
+    Monologue.setupMonologue(this, "Robot", false, false);
 
     configureBindings();
   }
@@ -42,9 +40,12 @@ public class RobotContainer implements Logged {
   private void configureBindings() {
 
     Trigger shooter = new Trigger(() -> controller.getRawButton(1));
-    shooter
-        .onTrue(new InstantCommand(() -> shooterSubsystem.setVelocity(ShooterConstants.TOP_MOTOR_SETPOINT_APM.in(RPM),
-            ShooterConstants.BOTTOM_MOTOR_SEETPOINT_APM.in(RPM))));
+    shooter.onTrue(
+        new InstantCommand(
+            () ->
+                shooterSubsystem.setVelocity(
+                    ShooterConstants.TOP_MOTOR_SETPOINT_APM.in(RPM),
+                    ShooterConstants.BOTTOM_MOTOR_SEETPOINT_APM.in(RPM))));
     shooter.onFalse(new InstantCommand(() -> shooterSubsystem.setVelocity(0.0, 0.0)));
   }
 
