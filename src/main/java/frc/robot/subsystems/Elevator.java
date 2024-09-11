@@ -136,7 +136,8 @@ public class Elevator extends TrapezoidProfileSubsystem implements Logged {
     rightCurrent = sim.getCurrentDrawAmps();
 
     appliedVoltage =
-        simFeedforward.calculate(setpointState.velocity) + simFeedback.calculate(position, setpoint);
+        simFeedforward.calculate(setpointState.velocity)
+            + simFeedback.calculate(position, setpoint);
 
     sim.setInputVoltage(appliedVoltage);
   }
