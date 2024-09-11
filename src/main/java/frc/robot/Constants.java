@@ -7,23 +7,21 @@ import edu.wpi.first.units.*;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
-import frc.lib.util.FeedforwardConstants;
-import frc.lib.util.FeedforwardConstantsIO;
-import frc.lib.util.MotorConstantsIO;
-import frc.lib.util.PIDConstants;
-import frc.lib.util.PIDConstantsIO;
+import frc.lib.util.FeedforwardGains;
+import frc.lib.util.MotorConfig;
+import frc.lib.util.PIDGains;
 
 public class Constants {
 
   public static class ElevatorConstants {
 
-    public static final PIDConstants REAL_FEEDBACK_CONSTANTS = new PIDConstants(0, 0, 0);
-    public static final PIDConstants SIM_FEEDBACK_CONSTANTS = new PIDConstants(0.7, 0, 0);
+    public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.0).build();
+    public static final PIDGains SIM_PID_GAINS = new PIDGains.Builder().kp(0.7).build();
 
-    public static final FeedforwardConstants REAL_FEEDFORWARD_CONSTANTS =
-        new FeedforwardConstants(0, 0, 0, 0);
-    public static final FeedforwardConstants SIM_FEEDFORWARD_CONSTANTS =
-        new FeedforwardConstants(0, 9, 0, 0.143607);
+    public static final FeedforwardGains FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().ks(0.0).kv(0.0).ka(0.0).kg(0.0).build();
+    public static final FeedforwardGains SIM_FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().ks(0.0).kv(9.0).ka(0.0).kg(0.143607).build();
 
     public static final Measure<Velocity<Distance>> MAX_VELOCITY = MetersPerSecond.of(1);
     public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCELERATION =
@@ -41,6 +39,7 @@ public class Constants {
   public static class ShooterConstants {
     // 1
 
+    // TODO The Rumble Shooter does not shoot into the AMP.
     public static final Measure<Velocity<Angle>> TOP_MOTOR_SETPOINT_APM =
         RPM.of(600); // todo set actaul val for setpoint
     public static final Measure<Velocity<Angle>> TOP_MOTOR_SETPOINT_SPEAKER =
@@ -53,17 +52,9 @@ public class Constants {
 
     // 2
 
-    public static final PIDConstantsIO TOP_PID_CONSTANTS_IO =
-        new PIDConstantsIO(0, 0, 0, .008, 0, 0);
-
-    public static final FeedforwardConstantsIO TOP_FEEDFORWARD_CONSTANTS_IO =
-        new FeedforwardConstantsIO(0, 0, 0, 0.0021); // only care about Kv set later
-
-    public static final PIDConstantsIO BOTTOM_PID_CONSTANTS_IO =
-        new PIDConstantsIO(0, 0, 0, .008, 0, 0);
-
-    public static final FeedforwardConstantsIO BOTTOM_FEEDFORWARD_CONSTANTS_IO =
-        new FeedforwardConstantsIO(0, 0, 0, 0.0021); // only care about Kv set later
+    public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.008).build();
+    public static final FeedforwardGains FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().kv(0.0021).build();
 
     // 3
 
@@ -71,11 +62,15 @@ public class Constants {
 
     // 4
 
-    public static final MotorConstantsIO TOP_MOTOR_CONSTANTS_IO =
-        new MotorConstantsIO(true, 60, IdleMode.kBrake);
+    public static final MotorConfig TOP_MOTOR_CONFIG =
+        new MotorConfig.Builder().inverted(true).currentLimit(60).idleMode(IdleMode.kBrake).build();
 
-    public static final MotorConstantsIO BOTTOM_MOTOR_CONSTANTS_IO =
-        new MotorConstantsIO(false, 60, IdleMode.kBrake);
+    public static final MotorConfig BOTTOM_MOTOR_CONFIG =
+        new MotorConfig.Builder()
+            .inverted(false)
+            .currentLimit(60)
+            .idleMode(IdleMode.kBrake)
+            .build();
 
     // 6
 

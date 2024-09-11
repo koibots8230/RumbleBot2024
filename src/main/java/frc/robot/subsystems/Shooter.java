@@ -37,6 +37,8 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
+  // TODO remove the "isReal" flag here. Simulation objects should be used only in the
+  // simulationPeriodic
   private final boolean isReal;
 
   @Log private double topSetpoint;
@@ -52,6 +54,12 @@ public class Shooter extends SubsystemBase implements Logged {
   // respectivly
 
   public Shooter(boolean isReal) {
+    // TODO change how objects get constructed here. Real objects should always be constructed. Real
+    // objects should have simple names that don't specify that they are real.
+    // TODO Simulated objects should be constructed in the if isReal else blocks. If it is
+    // simulated, construct simulated objects. If it is real, simulated objects should be set to
+    // null.
+    // TODO Simulated objects should be named with "SIM"
     this.isReal = isReal;
 
     topMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
@@ -64,33 +72,39 @@ public class Shooter extends SubsystemBase implements Logged {
     topSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
     bottomSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
 
-    topSimFeedforward =
-        new SimpleMotorFeedforward(0.0, ShooterConstants.TOP_FEEDFORWARD_CONSTANTS_IO.kv);
-    bottomSimFeedforward =
-        new SimpleMotorFeedforward(0.0, ShooterConstants.BOTTOM_FEEDFORWARD_CONSTANTS_IO.kv);
+    topSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.FEEDFORWARD_GAINS.kv);
+    bottomSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.FEEDFORWARD_GAINS.kv);
 
-    topSimPID = new PIDController(ShooterConstants.TOP_PID_CONSTANTS_IO.kP, 0.0, 0.00);
-    bottomSimPID = new PIDController(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kP, 0.0, 0.00);
+    topSimPID =
+        new PIDController(
+            ShooterConstants.PID_GAINS.kp,
+            ShooterConstants.PID_GAINS.ki,
+            ShooterConstants.PID_GAINS.kd);
+    bottomSimPID =
+        new PIDController(
+            ShooterConstants.PID_GAINS.kp,
+            ShooterConstants.PID_GAINS.ki,
+            ShooterConstants.PID_GAINS.kd);
 
     if (Robot.isReal()) {
       topMotor.restoreFactoryDefaults();
-      topMotor.setInverted(ShooterConstants.TOP_MOTOR_CONSTANTS_IO.inverted);
-      topMotor.setSmartCurrentLimit(ShooterConstants.TOP_MOTOR_CONSTANTS_IO.currentLimit);
-      topMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONSTANTS_IO.idleMode);
+      topMotor.setInverted(ShooterConstants.TOP_MOTOR_CONFIG.inverted);
+      topMotor.setSmartCurrentLimit(ShooterConstants.TOP_MOTOR_CONFIG.currentLimit);
+      topMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONFIG.idleMode);
 
       bottomMotor.restoreFactoryDefaults();
-      topMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONSTANTS_IO.currentLimit);
-      topMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONSTANTS_IO.idleMode);
+      topMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
+      topMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONFIG.idleMode);
 
-      topController.setP(ShooterConstants.TOP_PID_CONSTANTS_IO.kP);
-      topController.setI(ShooterConstants.TOP_PID_CONSTANTS_IO.kI);
-      topController.setD(ShooterConstants.TOP_PID_CONSTANTS_IO.kD);
-      topController.setFF(ShooterConstants.TOP_FEEDFORWARD_CONSTANTS_IO.kv);
+      topController.setP(ShooterConstants.PID_GAINS.kp);
+      topController.setI(ShooterConstants.PID_GAINS.ki);
+      topController.setD(ShooterConstants.PID_GAINS.kd);
+      topController.setFF(ShooterConstants.PID_GAINS.kf);
 
-      bottomController.setP(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kP);
-      bottomController.setI(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kI);
-      bottomController.setD(ShooterConstants.BOTTOM_PID_CONSTANTS_IO.kD);
-      bottomController.setFF(ShooterConstants.BOTTOM_FEEDFORWARD_CONSTANTS_IO.kv);
+      bottomController.setP(ShooterConstants.PID_GAINS.kp);
+      bottomController.setI(ShooterConstants.PID_GAINS.ki);
+      bottomController.setD(ShooterConstants.PID_GAINS.kd);
+      bottomController.setFF(ShooterConstants.PID_GAINS.kf);
 
       topEncoder.setMeasurementPeriod(16);
       bottomEncoder.setMeasurementPeriod(16);
@@ -102,6 +116,7 @@ public class Shooter extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
+    // TODO Periodic is always called on real objects. Remove the "if block" around these calls.
     if (Robot.isReal()) {
       topController.setReference(topSetpoint, ControlType.kVelocity);
       bottomController.setReference(bottomSetpoint, ControlType.kVelocity);
@@ -136,11 +151,14 @@ public class Shooter extends SubsystemBase implements Logged {
     bottomSimMotor.setInputVoltage(bottomAppliedVoltage);
   }
 
+  // TODO are separate velocities needed for top and bottom?
   public void setVelocity(double topSetpoint, double bottomSetpoint) {
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
   }
 
+  // TODO this check should use the target set points that are passed into setVelocity, not from the
+  // constants file.
   public boolean checkVelocity() {
     return Math.abs(topEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_APM.in(RPM))
                 <= ShooterConstants.SHOOTER_RANGE

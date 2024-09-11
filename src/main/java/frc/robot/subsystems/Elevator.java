@@ -23,10 +23,14 @@ import frc.robot.Constants.ElevatorConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
+// TODO change to inherit from TrapezoidProfileSubsystem. This will have an impact on how the
+// simulation is done.
 public class Elevator extends SubsystemBase implements Logged {
 
+  // TODO remove the isReal member
   private boolean isReal;
 
+  // TODO make all of these member variables final
   private CANSparkMax leftMotor;
   private CANSparkMax rightMotor;
 
@@ -52,6 +56,12 @@ public class Elevator extends SubsystemBase implements Logged {
   @Log private double appliedVoltage;
 
   public Elevator(boolean isReal) {
+    // TODO change how objects get constructed here. Real objects should always be constructed. Real
+    // objects should have simple names that don't specify that they are real.
+    // TODO Simulated objects should be constructed in the if isReal else blocks. If it is
+    // simulated, construct simulated objects. If it is real, simulated objects should be set to
+    // null.
+    // TODO Simulated objects should be named with "SIM"
     this.isReal = isReal;
 
     if (isReal) {
@@ -66,16 +76,16 @@ public class Elevator extends SubsystemBase implements Logged {
 
       realFeedback.setFeedbackDevice(encoder);
 
-      realFeedback.setP(ElevatorConstants.REAL_FEEDBACK_CONSTANTS.kp);
-      realFeedback.setI(ElevatorConstants.REAL_FEEDBACK_CONSTANTS.ki);
-      realFeedback.setD(ElevatorConstants.REAL_FEEDBACK_CONSTANTS.kd);
+      realFeedback.setP(ElevatorConstants.PID_GAINS.kp);
+      realFeedback.setI(ElevatorConstants.PID_GAINS.ki);
+      realFeedback.setD(ElevatorConstants.PID_GAINS.kd);
 
       feedforward =
           new ElevatorFeedforward(
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.ks,
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.kg,
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.kv,
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.ka);
+              ElevatorConstants.FEEDFORWARD_GAINS.ks,
+              ElevatorConstants.FEEDFORWARD_GAINS.kg,
+              ElevatorConstants.FEEDFORWARD_GAINS.kv,
+              ElevatorConstants.FEEDFORWARD_GAINS.ka);
     } else {
       sim =
           new ElevatorSim(
@@ -90,15 +100,15 @@ public class Elevator extends SubsystemBase implements Logged {
               VecBuilder.fill(0));
       simFeedback =
           new PIDController(
-              ElevatorConstants.SIM_FEEDBACK_CONSTANTS.kp,
-              ElevatorConstants.SIM_FEEDBACK_CONSTANTS.ki,
-              ElevatorConstants.SIM_FEEDBACK_CONSTANTS.kd);
+              ElevatorConstants.PID_GAINS.kp,
+              ElevatorConstants.PID_GAINS.ki,
+              ElevatorConstants.PID_GAINS.kd);
       feedforward =
           new ElevatorFeedforward(
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.ks,
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.kg,
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.kv,
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.ka);
+              ElevatorConstants.FEEDFORWARD_GAINS.ks,
+              ElevatorConstants.FEEDFORWARD_GAINS.kg,
+              ElevatorConstants.FEEDFORWARD_GAINS.kv,
+              ElevatorConstants.FEEDFORWARD_GAINS.ka);
     }
 
     profile =
