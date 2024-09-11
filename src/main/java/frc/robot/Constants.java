@@ -32,8 +32,8 @@ public class Constants {
 
     public static final Measure<Distance> MAX_HEIGHT = Inches.of(6);
 
-    public static final int LEFT_MOTOR_PORT = 1;
-    public static final int RIGHT_MOTOR_PORT = 2;
+    public static final int LEFT_MOTOR_PORT = 3;
+    public static final int RIGHT_MOTOR_PORT = 4;
   }
 
   public static class ShooterConstants {

@@ -32,8 +32,8 @@ public class RobotContainer implements Logged {
 
   private void configureBindings() {
     Trigger elevatorUp = new Trigger(() -> controller.getRawButton(1));
-    elevatorUp.onTrue(elevator.setPosition(Inches.of(3)));
-    elevatorUp.onFalse(elevator.setPosition(Inches.of(0)));
+    elevatorUp.onTrue(elevator.setPositionCommand(Inches.of(3)));
+    elevatorUp.onFalse(elevator.setPositionCommand(Inches.of(0)));
   }
 
   public Command getAutonomousCommand() {
