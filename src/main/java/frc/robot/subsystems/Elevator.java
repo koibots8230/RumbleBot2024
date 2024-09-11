@@ -13,35 +13,37 @@ import edu.wpi.first.math.controller.ElevatorFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants.ElevatorConstants;
 import monologue.Annotations.Log;
 import monologue.Logged;
 
-public class Elevator extends SubsystemBase implements Logged {
+// TODO change to inherit from TrapezoidProfileSubsystem. This will have an impact on how the
+// simulation is done.
+public class Elevator extends TrapezoidProfileSubsystem implements Logged {
 
-  private boolean isReal;
+  // TODO make all of these member variables final
+  private final CANSparkMax leftMotor;
+  private final CANSparkMax rightMotor;
 
-  private CANSparkMax leftMotor;
-  private CANSparkMax rightMotor;
+  private final AbsoluteEncoder encoder;
+
+  private final SparkPIDController feedback;
+
+  private final ElevatorFeedforward feedforward;
 
   private ElevatorSim sim;
 
-  private AbsoluteEncoder encoder;
-
-  private SparkPIDController realFeedback;
-
   private PIDController simFeedback;
 
-  private ElevatorFeedforward feedforward;
+  private ElevatorFeedforward simFeedforward;
 
-  private TrapezoidProfile profile;
-  private TrapezoidProfile.State goal;
   private TrapezoidProfile.State setpointState;
 
   @Log private double setpoint;
@@ -52,31 +54,33 @@ public class Elevator extends SubsystemBase implements Logged {
   @Log private double appliedVoltage;
 
   public Elevator(boolean isReal) {
-    this.isReal = isReal;
+    super(
+        new TrapezoidProfile.Constraints(
+            ElevatorConstants.MAX_VELOCITY, ElevatorConstants.MAX_ACCELERATION),
+        0.0);
 
-    if (isReal) {
-      leftMotor = new CANSparkMax(ElevatorConstants.LEFT_MOTOR_PORT, MotorType.kBrushless);
+    leftMotor = new CANSparkMax(ElevatorConstants.LEFT_MOTOR_PORT, MotorType.kBrushless);
 
-      rightMotor = new CANSparkMax(ElevatorConstants.LEFT_MOTOR_PORT, MotorType.kBrushless);
-      rightMotor.follow(leftMotor);
+    rightMotor = new CANSparkMax(ElevatorConstants.RIGHT_MOTOR_PORT, MotorType.kBrushless);
+    rightMotor.follow(leftMotor);
 
-      encoder = leftMotor.getAbsoluteEncoder();
+    encoder = leftMotor.getAbsoluteEncoder();
 
-      realFeedback = leftMotor.getPIDController();
+    feedback = leftMotor.getPIDController();
 
-      realFeedback.setFeedbackDevice(encoder);
+    feedback.setFeedbackDevice(encoder);
 
-      realFeedback.setP(ElevatorConstants.REAL_FEEDBACK_CONSTANTS.kp);
-      realFeedback.setI(ElevatorConstants.REAL_FEEDBACK_CONSTANTS.ki);
-      realFeedback.setD(ElevatorConstants.REAL_FEEDBACK_CONSTANTS.kd);
+    feedback.setP(ElevatorConstants.PID_GAINS.kp);
+    feedback.setI(ElevatorConstants.PID_GAINS.ki);
+    feedback.setD(ElevatorConstants.PID_GAINS.kd);
 
-      feedforward =
-          new ElevatorFeedforward(
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.ks,
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.kg,
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.kv,
-              ElevatorConstants.REAL_FEEDFORWARD_CONSTANTS.ka);
-    } else {
+    feedforward =
+        new ElevatorFeedforward(
+            ElevatorConstants.FEEDFORWARD_GAINS.ks,
+            ElevatorConstants.FEEDFORWARD_GAINS.kg,
+            ElevatorConstants.FEEDFORWARD_GAINS.kv,
+            ElevatorConstants.FEEDFORWARD_GAINS.ka);
+    if (!isReal) {
       sim =
           new ElevatorSim(
               DCMotor.getNEO(2),
@@ -90,41 +94,34 @@ public class Elevator extends SubsystemBase implements Logged {
               VecBuilder.fill(0));
       simFeedback =
           new PIDController(
-              ElevatorConstants.SIM_FEEDBACK_CONSTANTS.kp,
-              ElevatorConstants.SIM_FEEDBACK_CONSTANTS.ki,
-              ElevatorConstants.SIM_FEEDBACK_CONSTANTS.kd);
-      feedforward =
+              ElevatorConstants.SIM_PID_GAINS.kp,
+              ElevatorConstants.SIM_PID_GAINS.ki,
+              ElevatorConstants.SIM_PID_GAINS.kd);
+      simFeedforward =
           new ElevatorFeedforward(
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.ks,
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.kg,
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.kv,
-              ElevatorConstants.SIM_FEEDFORWARD_CONSTANTS.ka);
+              ElevatorConstants.SIM_FEEDFORWARD_GAINS.ks,
+              ElevatorConstants.SIM_FEEDFORWARD_GAINS.kg,
+              ElevatorConstants.SIM_FEEDFORWARD_GAINS.kv,
+              ElevatorConstants.SIM_FEEDFORWARD_GAINS.ka);
     }
 
-    profile =
-        new TrapezoidProfile(
-            new TrapezoidProfile.Constraints(
-                ElevatorConstants.MAX_VELOCITY, ElevatorConstants.MAX_ACCELERATION));
-    goal = new TrapezoidProfile.State(Meters.of(0), MetersPerSecond.of(0));
     setpointState = new TrapezoidProfile.State(Meters.of(0), MetersPerSecond.of(0));
   }
 
   @Override
-  public void periodic() {
-    setpointState = profile.calculate(0.02, setpointState, goal);
-    setpoint = goal.position;
-    if (isReal) {
-      position = encoder.getPosition();
-      velocity = encoder.getVelocity();
+  public void useState(State state) {
+    setpointState = state;
 
-      leftCurrent = leftMotor.getOutputCurrent();
-      rightCurrent = rightMotor.getOutputCurrent();
+    position = encoder.getPosition();
+    velocity = encoder.getVelocity();
 
-      appliedVoltage = leftMotor.getBusVoltage() * leftMotor.getAppliedOutput();
+    leftCurrent = leftMotor.getOutputCurrent();
+    rightCurrent = rightMotor.getOutputCurrent();
 
-      realFeedback.setReference(
-          setpoint, ControlType.kPosition, 0, feedforward.calculate(setpointState.velocity));
-    }
+    appliedVoltage = leftMotor.getBusVoltage() * leftMotor.getAppliedOutput();
+
+    feedback.setReference(
+        setpoint, ControlType.kPosition, 0, feedforward.calculate(setpointState.velocity));
   }
 
   @Override
@@ -139,16 +136,18 @@ public class Elevator extends SubsystemBase implements Logged {
     rightCurrent = sim.getCurrentDrawAmps();
 
     appliedVoltage =
-        feedforward.calculate(setpointState.velocity) + simFeedback.calculate(position, setpoint);
+        simFeedforward.calculate(setpointState.velocity)
+            + simFeedback.calculate(position, setpoint);
 
     sim.setInputVoltage(appliedVoltage);
   }
 
-  private void setGoal(Measure<Distance> position) {
-    goal.position = position.in(Meters);
+  private void setPosition(Measure<Distance> position) {
+    this.setGoal(position.in(Meters));
+    setpoint = position.in(Meters);
   }
 
-  public Command setPosition(Measure<Distance> position) {
-    return new InstantCommand(() -> this.setGoal(position));
+  public Command setPositionCommand(Measure<Distance> position) {
+    return new InstantCommand(() -> this.setPosition(position));
   }
 }
