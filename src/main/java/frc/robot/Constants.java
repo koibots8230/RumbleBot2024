@@ -13,6 +13,30 @@ import frc.lib.util.PIDGains;
 
 public class Constants {
 
+  public static class IndexerConstants {
+    public static final PIDGains TOP_FEEDBACK_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final PIDGains BOTTOM_FEEDBACK_GAINS = new PIDGains.Builder().kp(0).build();
+
+    public static final FeedforwardGains TOP_FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().kv(0).build();
+    public static final FeedforwardGains BOTTOM_FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().kv(0).build();
+
+    public static final Measure<Velocity<Angle>> TOP_INTAKING_SPEED = RPM.of(500);
+    public static final Measure<Velocity<Angle>> BOTTOM_INTAKING_SPEED = RPM.of(1000);
+
+    public static final Measure<Velocity<Angle>> TOP_AMP_SPEED = RPM.of(-500);
+    public static final Measure<Velocity<Angle>> BOTTOM_AMP_SPEED = RPM.of(-1000);
+
+    public static final double TOP_GEAR_RATIO = 1.0 / 27.0;
+    public static final double BOTTOM_GEAR_RATIO = 1.0 / 27.0;
+
+    public static final int TOP_MOTOR_PORT = 5;
+    public static final int BOTTOM_MOTOR_PORT = 6;
+
+    public static final int NOTE_DETECTOR_PORT = 0;
+  }
+
   public static class ElevatorConstants {
 
     public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.0).build();
