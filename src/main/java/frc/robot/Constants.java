@@ -2,7 +2,11 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import org.opencv.core.RotatedRect;
+
 import com.revrobotics.CANSparkBase.IdleMode;
+
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
@@ -34,6 +38,20 @@ public class Constants {
 
     public static final int LEFT_MOTOR_PORT = 3;
     public static final int RIGHT_MOTOR_PORT = 4;
+  }
+
+    //  TODO add actual values into here
+  public static class ShooterPivot{
+
+    public static final int SHOOTER_PIVOT_MOTER = 0; 
+    
+    public static final Rotation2d MAX_VELOCITY = Rotation2d.fromDegrees(30); 
+    public static final Rotation2d MAX_ACCLERATION = Rotation2d.fromDegrees(15);
+    
+    public static final FeedforwardGains FEEDFORWARD_GAINS = new FeedforwardGains.Builder().ka(0.0).kg(0.0).ks(0.0).kv(0.0).build();
+
+    public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
+
   }
 
   public static class ShooterConstants {

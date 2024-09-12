@@ -148,6 +148,6 @@ public class Elevator extends TrapezoidProfileSubsystem implements Logged {
   }
 
   public Command setPositionCommand(Measure<Distance> position) {
-    return new InstantCommand(() -> this.setPosition(position));
+    return new InstantCommand(() -> this.setPosition(position), this);
   }
 }

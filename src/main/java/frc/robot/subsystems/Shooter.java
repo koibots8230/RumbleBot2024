@@ -37,9 +37,6 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
-  // TODO remove the "isReal" flag here. Simulation objects should be used only in the
-  // simulationPeriodic
-  private final boolean isReal;
 
   @Log private double topSetpoint;
   @Log private double bottomSetpoint;
@@ -57,10 +54,9 @@ public class Shooter extends SubsystemBase implements Logged {
     // TODO change how objects get constructed here. Real objects should always be constructed. Real
     // objects should have simple names that don't specify that they are real.
     // TODO Simulated objects should be constructed in the if isReal else blocks. If it is
-    // simulated, construct simulated objects. If it is real, simulated objects should be set to
+    // simulated, construct simulated objects. If it is real, simulated objects should be set toz
     // null.
-    // TODO Simulated objects should be named with "SIM"
-    this.isReal = isReal;
+
 
     topMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
     bottomMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
