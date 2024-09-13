@@ -18,6 +18,7 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.wpilibj.simulation.ElevatorSim;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants.ElevatorConstants;
@@ -147,7 +148,14 @@ public class Elevator extends TrapezoidProfileSubsystem implements Logged {
     setpoint = position.in(Meters);
   }
 
+  public boolean atSetpoint() {
+    return (position >= setpoint - ElevatorConstants.ALLOWED_ERROR.in(Meters)) && (position <= setpoint + ElevatorConstants.ALLOWED_ERROR.in(Meters));
+  }
+
   public Command setPositionCommand(Measure<Distance> position) {
-    return new InstantCommand(() -> this.setPosition(position));
+    return Commands.sequence(
+        Commands.run(() -> this.setPosition(position), this),
+        Commands.waitUntil(() -> atSetpoint())
+    );
   }
 }

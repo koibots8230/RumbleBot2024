@@ -58,10 +58,15 @@ public class Constants {
     public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCELERATION =
         MetersPerSecondPerSecond.of(1);
 
+    public static final Measure<Distance> AMP_POSITION = Inches.of(6);
+    public static final Measure<Distance> SHOOTING_POSITION = Inches.of(0.1);
+
     public static final double GEAR_RATIO = 10;
     public static final Measure<Distance> DRUM_SIZE = Inches.of(1);
 
     public static final Measure<Distance> MAX_HEIGHT = Inches.of(6);
+
+    public static final Measure<Distance> ALLOWED_ERROR = Inches.of(0.05);
 
     public static final int LEFT_MOTOR_PORT = 3;
     public static final int RIGHT_MOTOR_PORT = 4;
