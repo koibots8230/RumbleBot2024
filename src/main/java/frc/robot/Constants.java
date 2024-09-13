@@ -37,6 +37,11 @@ public class Constants {
     public static final double TOP_GEAR_RATIO = 1.0 / 27.0;
     public static final double BOTTOM_GEAR_RATIO = 1.0 / 27.0;
 
+    public static final MotorConfig TOP_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(30).build();
+    public static final MotorConfig BOTTOM_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(30).build();
+
     public static final int TOP_MOTOR_PORT = 5;
     public static final int BOTTOM_MOTOR_PORT = 6;
 
@@ -67,6 +72,11 @@ public class Constants {
     public static final Measure<Distance> MAX_HEIGHT = Inches.of(6);
 
     public static final Measure<Distance> ALLOWED_ERROR = Inches.of(0.05);
+
+    public static final MotorConfig LEFT_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(60).build();
+    public static final MotorConfig RIGHT_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(60).build();
 
     public static final int LEFT_MOTOR_PORT = 3;
     public static final int RIGHT_MOTOR_PORT = 4;

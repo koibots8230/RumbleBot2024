@@ -13,7 +13,6 @@ import edu.wpi.first.units.Velocity;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IndexerConstants;
 import monologue.Annotations.Log;
@@ -49,6 +48,14 @@ public class Indexer extends SubsystemBase implements Logged {
     bottomMotor =
         new CANSparkMax(IndexerConstants.BOTTOM_MOTOR_PORT, CANSparkLowLevel.MotorType.kBrushless);
 
+    topMotor.setSmartCurrentLimit(IndexerConstants.TOP_MOTOR_CONFIG.currentLimit);
+    topMotor.setIdleMode(IndexerConstants.TOP_MOTOR_CONFIG.idleMode);
+    topMotor.setInverted(IndexerConstants.TOP_MOTOR_CONFIG.inverted);
+
+    bottomMotor.setSmartCurrentLimit(IndexerConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
+    bottomMotor.setIdleMode(IndexerConstants.BOTTOM_MOTOR_CONFIG.idleMode);
+    bottomMotor.setInverted(IndexerConstants.BOTTOM_MOTOR_CONFIG.inverted);
+
     topEncoder = topMotor.getEncoder();
     bottomEncoder = bottomMotor.getEncoder();
 
@@ -83,8 +90,8 @@ public class Indexer extends SubsystemBase implements Logged {
 
   @Override
   public void simulationPeriodic() {
-      topVelocity = topSetpoint;
-      bottomVelocity = bottomSetpoint;
+    topVelocity = topSetpoint;
+    bottomVelocity = bottomSetpoint;
   }
 
   private void setVelocity(
@@ -109,42 +116,40 @@ public class Indexer extends SubsystemBase implements Logged {
   public Command alignForShot() {
     return Commands.sequence(
         Commands.run(
-                () ->
-                    this.setVelocity(
-                        IndexerConstants.TOP_ALIGNING_SPEED, IndexerConstants.BOTTOM_ALIGNING_SPEED),
-                this),
+            () ->
+                this.setVelocity(
+                    IndexerConstants.TOP_ALIGNING_SPEED, IndexerConstants.BOTTOM_ALIGNING_SPEED),
+            this),
         Commands.waitUntil(() -> bottomNoteDetector.get()),
         Commands.run(
-                () ->
-                    this.setVelocity(
-                        IndexerConstants.TOP_ALIGNING_SPEED, IndexerConstants.BOTTOM_ALIGNING_SPEED.times(-1)),
-                this),
+            () ->
+                this.setVelocity(
+                    IndexerConstants.TOP_ALIGNING_SPEED,
+                    IndexerConstants.BOTTOM_ALIGNING_SPEED.times(-1)),
+            this),
         Commands.waitUntil(() -> !topNoteDetector.get()),
-        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this)
-    );
+        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
   }
 
   public Command shootSpeaker() {
     return Commands.sequence(
         Commands.run(
-                () ->
-                    this.setVelocity(
-                        IndexerConstants.TOP_SHOOTING_SPEED, IndexerConstants.BOTTOM_SHOOTING_SPEED),
-                this),
+            () ->
+                this.setVelocity(
+                    IndexerConstants.TOP_SHOOTING_SPEED, IndexerConstants.BOTTOM_SHOOTING_SPEED),
+            this),
         Commands.waitSeconds(0.1),
         Commands.waitUntil(() -> !this.topNoteDetector.get()),
         Commands.waitSeconds(0.5),
-        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this)
-    );
+        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
   }
 
   public Command scoreAmp() {
     return Commands.sequence(
         Commands.run(
-                () ->
-                    this.setVelocity(
-                        IndexerConstants.TOP_AMP_SPEED, IndexerConstants.BOTTOM_AMP_SPEED),
-                this),
+            () ->
+                this.setVelocity(IndexerConstants.TOP_AMP_SPEED, IndexerConstants.BOTTOM_AMP_SPEED),
+            this),
         Commands.waitUntil(() -> bottomNoteDetector.get()),
         Commands.waitSeconds(0.5),
         Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
