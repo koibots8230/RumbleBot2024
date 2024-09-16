@@ -19,14 +19,14 @@ import monologue.Logged;
 
 public class Shooter extends SubsystemBase implements Logged {
 
-  private final CANSparkMax topMotor;
-  private final CANSparkMax bottomMotor;
+  private final CANSparkMax rightMotor;
+  private final CANSparkMax leftMotor;
 
-  private final SparkPIDController topController;
-  private final SparkPIDController bottomController;
+  private final SparkPIDController rightController;
+  private final SparkPIDController leftController;
 
-  private final RelativeEncoder topEncoder;
-  private final RelativeEncoder bottomEncoder;
+  private final RelativeEncoder rightEncoder;
+  private final RelativeEncoder leftEncoder;
 
   private final DCMotorSim topSimMotor;
   private final DCMotorSim bottomSimMotor;
@@ -58,12 +58,12 @@ public class Shooter extends SubsystemBase implements Logged {
     // null.
 
 
-    topMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
-    bottomMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
-    topController = topMotor.getPIDController();
-    bottomController = bottomMotor.getPIDController();
-    topEncoder = topMotor.getEncoder();
-    bottomEncoder = bottomMotor.getEncoder();
+    rightMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
+    leftMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
+    rightController = rightMotor.getPIDController();
+    leftController = leftMotor.getPIDController();
+    rightEncoder = rightMotor.getEncoder();
+    leftEncoder = leftMotor.getEncoder();
 
     topSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
     bottomSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
@@ -83,30 +83,30 @@ public class Shooter extends SubsystemBase implements Logged {
             ShooterConstants.PID_GAINS.kd);
 
     if (Robot.isReal()) {
-      topMotor.restoreFactoryDefaults();
-      topMotor.setInverted(ShooterConstants.TOP_MOTOR_CONFIG.inverted);
-      topMotor.setSmartCurrentLimit(ShooterConstants.TOP_MOTOR_CONFIG.currentLimit);
-      topMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONFIG.idleMode);
+      rightMotor.restoreFactoryDefaults();
+      rightMotor.setInverted(ShooterConstants.TOP_MOTOR_CONFIG.inverted);
+      rightMotor.setSmartCurrentLimit(ShooterConstants.TOP_MOTOR_CONFIG.currentLimit);
+      rightMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONFIG.idleMode);
 
-      bottomMotor.restoreFactoryDefaults();
-      topMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
-      topMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONFIG.idleMode);
+      leftMotor.restoreFactoryDefaults();
+      rightMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
+      rightMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONFIG.idleMode);
 
-      topController.setP(ShooterConstants.PID_GAINS.kp);
-      topController.setI(ShooterConstants.PID_GAINS.ki);
-      topController.setD(ShooterConstants.PID_GAINS.kd);
-      topController.setFF(ShooterConstants.PID_GAINS.kf);
+      rightController.setP(ShooterConstants.PID_GAINS.kp);
+      rightController.setI(ShooterConstants.PID_GAINS.ki);
+      rightController.setD(ShooterConstants.PID_GAINS.kd);
+      rightController.setFF(ShooterConstants.PID_GAINS.kf);
 
-      bottomController.setP(ShooterConstants.PID_GAINS.kp);
-      bottomController.setI(ShooterConstants.PID_GAINS.ki);
-      bottomController.setD(ShooterConstants.PID_GAINS.kd);
-      bottomController.setFF(ShooterConstants.PID_GAINS.kf);
+      leftController.setP(ShooterConstants.PID_GAINS.kp);
+      leftController.setI(ShooterConstants.PID_GAINS.ki);
+      leftController.setD(ShooterConstants.PID_GAINS.kd);
+      leftController.setFF(ShooterConstants.PID_GAINS.kf);
 
-      topEncoder.setMeasurementPeriod(16);
-      bottomEncoder.setMeasurementPeriod(16);
+      rightEncoder.setMeasurementPeriod(16);
+      leftEncoder.setMeasurementPeriod(16);
 
-      topEncoder.setAverageDepth(2);
-      bottomEncoder.setAverageDepth(2);
+      rightEncoder.setAverageDepth(2);
+      leftEncoder.setAverageDepth(2);
     }
   }
 
@@ -114,14 +114,14 @@ public class Shooter extends SubsystemBase implements Logged {
   public void periodic() {
     // TODO Periodic is always called on real objects. Remove the "if block" around these calls.
     if (Robot.isReal()) {
-      topController.setReference(topSetpoint, ControlType.kVelocity);
-      bottomController.setReference(bottomSetpoint, ControlType.kVelocity);
-      topShoterVelocity = topEncoder.getVelocity();
-      bottomShoterVelocity = bottomEncoder.getVelocity();
-      topAppliedVoltage = topMotor.getAppliedOutput() * topMotor.getBusVoltage();
-      bottomAppliedVoltage = bottomMotor.getAppliedOutput() * bottomMotor.getBusVoltage();
-      topshoterCurrent = topMotor.getOutputCurrent();
-      bottomShoterCurrent = bottomMotor.getOutputCurrent();
+      rightController.setReference(topSetpoint, ControlType.kVelocity);
+      leftController.setReference(bottomSetpoint, ControlType.kVelocity);
+      topShoterVelocity = rightEncoder.getVelocity();
+      bottomShoterVelocity = leftEncoder.getVelocity();
+      topAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
+      bottomAppliedVoltage = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
+      topshoterCurrent = rightMotor.getOutputCurrent();
+      bottomShoterCurrent = leftMotor.getOutputCurrent();
     }
   }
 
@@ -156,16 +156,16 @@ public class Shooter extends SubsystemBase implements Logged {
   // TODO this check should use the target set points that are passed into setVelocity, not from the
   // constants file.
   public boolean checkVelocity() {
-    return Math.abs(topEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_APM.in(RPM))
+    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_APM.in(RPM))
                 <= ShooterConstants.SHOOTER_RANGE
             && Math.abs(
-                    bottomEncoder.getVelocity()
+                    leftEncoder.getVelocity()
                         - ShooterConstants.BOTTOM_MOTOR_SEETPOINT_APM.in(RPM))
                 <= ShooterConstants.SHOOTER_RANGE
-        || Math.abs(topEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER.in(RPM))
+        || Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER.in(RPM))
                 <= ShooterConstants.SHOOTER_RANGE
             && Math.abs(
-                    bottomEncoder.getVelocity()
+                    leftEncoder.getVelocity()
                         - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER.in(RPM))
                 <= ShooterConstants.SHOOTER_RANGE;
   }

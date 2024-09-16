@@ -44,7 +44,7 @@ public class RobotContainer implements Logged {
     Trigger setAngle = new Trigger(() -> controller.getRawButton(2));
     setAngle.onTrue(shooterPivot.setPositionCommand(Rotation2d.fromDegrees(42)));
     setAngle.onFalse(shooterPivot.setPositionCommand(Rotation2d.fromDegrees(0)));
-  }
+  } 
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");
