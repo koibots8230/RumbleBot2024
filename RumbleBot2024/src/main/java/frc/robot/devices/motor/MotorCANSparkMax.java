@@ -10,12 +10,22 @@ public class MotorCANSparkMax implements Motor {
     private final RelativeEncoder relativeEncoder;
     private AbsoluteEncoder absoluteEncoder;
 
-    public MotorCANSparkMax(int ID) {
+    public MotorCANSparkMax(MotorDefinition motorDefinition) {
         useAbsoluteEncoder = false;
-        canSparkMax = new CANSparkMax(ID, CANSparkLowLevel.MotorType.kBrushless);
+        canSparkMax = new CANSparkMax(motorDefinition.ID(), CANSparkLowLevel.MotorType.kBrushless);
         relativeEncoder = canSparkMax.getEncoder();
         controller = canSparkMax.getPIDController();
         controller.setFeedbackDevice(relativeEncoder);
+        setP(motorDefinition.P());
+        setI(motorDefinition.I());
+        setD(motorDefinition.D());
+        setFF(motorDefinition.FF());
+        setVelocityFactor(motorDefinition.VelocityFactor());
+        setPositionFactor(motorDefinition.PositionFactor());
+        setHasAbsoluteEncoder(motorDefinition.HasAbsoluteEncoder());
+        setInverted(motorDefinition.inverted());
+        setCurrentLimit(motorDefinition.currentLimit());
+        setIdleMode(motorDefinition.idleMode());
     }
 
     @Override

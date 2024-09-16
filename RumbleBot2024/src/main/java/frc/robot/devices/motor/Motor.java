@@ -36,4 +36,18 @@ public interface Motor {
         COAST,
         BREAK
     }
+
+    record MotorDefinition(
+            int ID,
+            double P,
+            double I,
+            double D,
+            double FF,
+            double VelocityFactor,
+            double PositionFactor,
+            boolean HasAbsoluteEncoder,
+            boolean inverted,
+            Measure<Current> currentLimit,
+            Motor.IdleMode idleMode) {
+    }
 }

@@ -16,11 +16,11 @@ public class MotorFactory {
         motorSims = new ArrayList<>();
     }
 
-    public Motor create(int ID, boolean isReal) {
+    public Motor create(Motor.MotorDefinition motorDefinition, boolean isReal) {
         if (isReal) {
-            return new MotorCANSparkMax(ID);
+            return new MotorCANSparkMax(motorDefinition);
         } else {
-            MotorSim motorSim = new MotorSim(ID);
+            MotorSim motorSim = new MotorSim(motorDefinition);
             motorSims.add(motorSim);
             return motorSim;
         }

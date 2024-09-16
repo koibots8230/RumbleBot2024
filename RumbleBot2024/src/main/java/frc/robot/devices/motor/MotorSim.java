@@ -25,11 +25,11 @@ public class MotorSim implements Motor{
     private boolean inverted;
     private IdleMode idleMode;
 
-    public MotorSim(int ID) {
+    public MotorSim(MotorDefinition motorDefinition) {
         velocity = Units.RPM.zero();
         position = Units.Rotations.zero();
         prevPosition = Units.Rotations.zero();
-        simDevice = SimDevice.create("Motor [".concat(String.valueOf(ID)).concat("]"));
+        simDevice = SimDevice.create("Motor [".concat(String.valueOf(motorDefinition.ID())).concat("]"));
         simVelocity = simDevice.createDouble("Velocity (Likely RPM)", SimDevice.Direction.kOutput, 0);
         simVelocityFactor = simDevice.createDouble("Velocity Factor", SimDevice.Direction.kOutput, 0);
         simVelocityPreconv = simDevice.createDouble("Velocity Pre-conversion (RPM)", SimDevice.Direction.kOutput, 0);
@@ -42,6 +42,17 @@ public class MotorSim implements Motor{
         FF = 0;
         inverted = false;
         idleMode = IdleMode.COAST;
+
+        setP(motorDefinition.P());
+        setI(motorDefinition.I());
+        setD(motorDefinition.D());
+        setFF(motorDefinition.FF());
+        setVelocityFactor(motorDefinition.VelocityFactor());
+        setPositionFactor(motorDefinition.PositionFactor());
+        setHasAbsoluteEncoder(motorDefinition.HasAbsoluteEncoder());
+        setInverted(motorDefinition.inverted());
+        setCurrentLimit(motorDefinition.currentLimit());
+        setIdleMode(motorDefinition.idleMode());
     }
 
     @Override
