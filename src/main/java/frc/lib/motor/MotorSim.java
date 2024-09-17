@@ -1,8 +1,9 @@
-package frc.robot.devices.motor;
+package frc.lib.motor;
 
 import edu.wpi.first.hal.SimDevice;
 import edu.wpi.first.hal.SimDouble;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 
 public class MotorSim implements Motor {
@@ -169,9 +170,9 @@ public class MotorSim implements Motor {
   }
 
   @Override
-  public void setPosition(Measure<Angle> position) {
+  public void setPosition(Rotation2d position) {
     usePosition = true;
-    this.position = position;
+    this.position = Units.Rotations.of(position.getRotations());
   }
 
   @Override
@@ -185,8 +186,8 @@ public class MotorSim implements Motor {
   }
 
   @Override
-  public Measure<Angle> getPosition() {
-    return position;
+  public Rotation2d getPosition() {
+    return Rotation2d.fromRotations(position.in(Units.Rotations));
   }
 
   public void update() {

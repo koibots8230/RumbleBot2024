@@ -1,5 +1,6 @@
-package frc.robot.devices.motor;
+package frc.lib.motor;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 
 public interface Motor {
@@ -47,13 +48,13 @@ public interface Motor {
 
   void setVelocityDistance(Measure<Velocity<Distance>> velocity);
 
-  void setPosition(Measure<Angle> position);
+  void setPosition(Rotation2d position);
 
   Measure<Velocity<Angle>> getVelocityAngle();
 
   Measure<Velocity<Distance>> getVelocityDistance();
 
-  Measure<Angle> getPosition();
+  Rotation2d getPosition();
 
   enum IdleMode {
     COAST,

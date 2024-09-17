@@ -1,6 +1,7 @@
-package frc.robot.devices.motor;
+package frc.lib.motor;
 
 import com.revrobotics.*;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 
 public class MotorCANSparkMax implements Motor {
@@ -152,8 +153,8 @@ public class MotorCANSparkMax implements Motor {
   }
 
   @Override
-  public void setPosition(Measure<Angle> position) {
-    controller.setReference(position.in(Units.Rotations), CANSparkBase.ControlType.kPosition);
+  public void setPosition(Rotation2d position) {
+    controller.setReference(position.getRotations(), CANSparkBase.ControlType.kPosition);
   }
 
   @Override
@@ -163,11 +164,13 @@ public class MotorCANSparkMax implements Motor {
 
   @Override
   public Measure<Velocity<Distance>> getVelocityDistance() {
-    return Units.MetersPerSecond.of(relativeEncoder.getVelocity());
+    if (useAbsoluteEncoder) return Units.MetersPerSecond.of(absoluteEncoder.getVelocity());
+    else return Units.MetersPerSecond.of(relativeEncoder.getVelocity());
   }
 
   @Override
-  public Measure<Angle> getPosition() {
-    return Units.Rotations.of(relativeEncoder.getPosition());
+  public Rotation2d getPosition() {
+    if (useAbsoluteEncoder) return Rotation2d.fromDegrees(absoluteEncoder.getPosition());
+    else return Rotation2d.fromDegrees(relativeEncoder.getPosition());
   }
 }

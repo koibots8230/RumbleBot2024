@@ -1,4 +1,4 @@
-package frc.robot.devices.motor;
+package frc.lib.motor;
 
 import java.util.ArrayList;
 import java.util.List;
