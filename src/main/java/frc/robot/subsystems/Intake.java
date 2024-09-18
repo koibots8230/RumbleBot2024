@@ -1,14 +1,11 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.CANSparkLowLevel.MotorType;
-
 import static edu.wpi.first.units.Units.RPM;
 
+import com.revrobotics.CANSparkBase.ControlType;
+import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
-import com.revrobotics.CANSparkBase.ControlType;
-
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
@@ -31,7 +28,7 @@ public class Intake extends SubsystemBase implements Logged {
     controller.setP(IntakeConstants.PID_GAINS.kp);
   }
 
-  private void setVelocity(Measure<Velocity<Angle>> setpoint){
+  private void setVelocity(Measure<Velocity<Angle>> setpoint) {
     controller.setReference(setpoint.in(RPM), ControlType.kVelocity);
   }
 }
