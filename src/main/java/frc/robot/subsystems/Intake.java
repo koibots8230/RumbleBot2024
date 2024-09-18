@@ -29,12 +29,9 @@ public class Intake extends SubsystemBase implements Logged {
     controller = intakeMotor.getPIDController();
 
     controller.setP(IntakeConstants.PID_GAINS.kp);
-    controller.setI(IntakeConstants.PID_GAINS.ki);
-    controller.setD(IntakeConstants.PID_GAINS.kd);
-    controller.setFF(IntakeConstants.INTAKE_FEED_FORWARD);
   }
 
-  private void run(Measure<Velocity<Angle>> setpoint){
+  private void setVelocity(Measure<Velocity<Angle>> setpoint){
     controller.setReference(setpoint.in(RPM), ControlType.kVelocity);
   }
 }
