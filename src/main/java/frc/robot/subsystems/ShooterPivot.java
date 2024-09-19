@@ -100,4 +100,9 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
   public Command setPositionCommand(Rotation2d position) {
     return new InstantCommand(() -> this.setPosition(position), this);
   }
+
+  public double linnerInterpilation(double distance) {
+    double angle = Constants.ShooterPivot.a * distance + Constants.ShooterPivot.b;
+    return angle;
+  }
 }

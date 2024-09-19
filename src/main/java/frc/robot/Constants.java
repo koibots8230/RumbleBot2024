@@ -50,6 +50,10 @@ public class Constants {
 
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
+
+    public static final double a = 0.0;
+    public static final double b = 0.0;
+
   }
 
   public static class ShooterConstants {
