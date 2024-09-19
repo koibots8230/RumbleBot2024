@@ -4,17 +4,15 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
 import static edu.wpi.first.units.Units.Inches;
 
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.units.Angle;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.subsystems.ShooterPivot;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.ShooterPivot;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -29,7 +27,7 @@ public class RobotContainer implements Logged {
     controller = new GenericHID(0);
 
     elevator = new Elevator(isReal);
-    shooterPivot =  new ShooterPivot();
+    shooterPivot = new ShooterPivot();
 
     Monologue.setupMonologue(this, "Robot", false, false);
 
@@ -44,7 +42,7 @@ public class RobotContainer implements Logged {
     Trigger setAngle = new Trigger(() -> controller.getRawButton(2));
     setAngle.onTrue(shooterPivot.setPositionCommand(Rotation2d.fromDegrees(42)));
     setAngle.onFalse(shooterPivot.setPositionCommand(Rotation2d.fromDegrees(0)));
-  } 
+  }
 
   public Command getAutonomousCommand() {
     return Commands.print("No autonomous command configured");

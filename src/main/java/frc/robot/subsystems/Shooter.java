@@ -37,7 +37,6 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
-
   @Log private double topSetpoint;
   @Log private double bottomSetpoint;
   @Log private double topShoterVelocity;
@@ -51,12 +50,14 @@ public class Shooter extends SubsystemBase implements Logged {
   // respectivly
 
   public Shooter(boolean isReal) {
-    // TODO change how objects get constructed here. Real objects should always be constructed. Real
+    // TODO change how objects get constructed here. Real objects should always be
+    // constructed. Real
     // objects should have simple names that don't specify that they are real.
-    // TODO Simulated objects should be constructed in the if isReal else blocks. If it is
-    // simulated, construct simulated objects. If it is real, simulated objects should be set toz
+    // TODO Simulated objects should be constructed in the if isReal else blocks. If
+    // it is
+    // simulated, construct simulated objects. If it is real, simulated objects
+    // should be set toz
     // null.
-
 
     rightMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
     leftMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
@@ -112,7 +113,8 @@ public class Shooter extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
-    // TODO Periodic is always called on real objects. Remove the "if block" around these calls.
+    // TODO Periodic is always called on real objects. Remove the "if block" around
+    // these calls.
     if (Robot.isReal()) {
       rightController.setReference(topSetpoint, ControlType.kVelocity);
       leftController.setReference(bottomSetpoint, ControlType.kVelocity);
@@ -153,20 +155,15 @@ public class Shooter extends SubsystemBase implements Logged {
     this.bottomSetpoint = bottomSetpoint;
   }
 
-  // TODO this check should use the target set points that are passed into setVelocity, not from the
+  // TODO this check should use the target set points that are passed into
+  // setVelocity, not from the
   // constants file.
   public boolean checkVelocity() {
-    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_APM.in(RPM))
-                <= ShooterConstants.SHOOTER_RANGE
-            && Math.abs(
-                    leftEncoder.getVelocity()
-                        - ShooterConstants.BOTTOM_MOTOR_SEETPOINT_APM.in(RPM))
-                <= ShooterConstants.SHOOTER_RANGE
-        || Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER.in(RPM))
-                <= ShooterConstants.SHOOTER_RANGE
-            && Math.abs(
-                    leftEncoder.getVelocity()
-                        - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER.in(RPM))
-                <= ShooterConstants.SHOOTER_RANGE;
+    return Math.abs(
+                rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER.in(RPM))
+            <= ShooterConstants.SHOOTER_RANGE
+        && Math.abs(
+                leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER.in(RPM))
+            <= ShooterConstants.SHOOTER_RANGE;
   }
 }
