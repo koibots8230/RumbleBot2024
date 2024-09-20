@@ -4,14 +4,18 @@ import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.units.*;
-import edu.wpi.first.units.Angle;
-import edu.wpi.first.units.Measure;
-import edu.wpi.first.units.Velocity;
+import frc.lib.motor.Motor;
 import frc.lib.util.FeedforwardGains;
 import frc.lib.util.MotorConfig;
 import frc.lib.util.PIDGains;
 
 public class Constants {
+  public static class RobotConstants {
+    public static final Measure<Distance> WIDTH = Inches.of(26.0);
+    public static final Measure<Distance> LENGTH = Inches.of(26.0);
+    public static final Measure<Distance> WHEEL_OFFSET = Inches.of(1.754419);
+    public static final double DRIVE_POSITION_FACTOR = 1.0;
+  }
 
   public static class ElevatorConstants {
 
@@ -77,5 +81,58 @@ public class Constants {
     public static final int TOP_SHOOTER_PORT = 1;
 
     public static final int BOTTOM_SHOOTER_PORT = 2;
+  }
+
+  public static class DrivetrainConstants {
+    private static final double DRIVE_P = 1.0;
+    private static final double DRIVE_I = 0.0;
+    private static final double DRIVE_D = 0.0;
+    private static final double DRIVE_FF = 1.0; // Feedforward
+    private static final double DRIVE_VF = 1.0; // Velocity Factor
+    private static final double DRIVE_PF = 1.0; // Position Factor
+    private static final Measure<Current> DRIVE_CL = Amps.of(40.0); // Current Limit
+    private static final Motor.IdleMode DRIVE_IM = Motor.IdleMode.BREAK;
+
+    private static final double TURN_P = 1.0;
+    private static final double TURN_I = 0.0;
+    private static final double TURN_D = 0.0;
+    private static final double TURN_FF = 1.0; // Feedforward
+    private static final double TURN_VF = 1.0; // Velocity Factor
+    private static final double TURN_PF = 1.0; // Position Factor
+    private static final Measure<Current> TURN_CL = Amps.of(30.0); // Current Limit
+    private static final Motor.IdleMode TURN_IM = Motor.IdleMode.BREAK;
+
+    public static final Motor.MotorDefinition FRONT_LEFT_DRIVE = new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
+            false, false, DRIVE_CL, DRIVE_IM
+    );
+    public static final Motor.MotorDefinition FRONT_LEFT_TURN = new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
+            false, false, TURN_CL, TURN_IM
+    );
+    public static final Motor.MotorDefinition FRONT_RIGHT_DRIVE = new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
+            false, false, DRIVE_CL, DRIVE_IM
+    );
+    public static final Motor.MotorDefinition FRONT_RIGHT_TURN = new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
+            false, false, TURN_CL, TURN_IM
+    );
+    public static final Motor.MotorDefinition BACK_LEFT_DRIVE = new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
+            false, false, DRIVE_CL, DRIVE_IM
+    );
+    public static final Motor.MotorDefinition BACK_LEFT_TURN = new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
+            false, false, TURN_CL, TURN_IM
+    );
+    public static final Motor.MotorDefinition BACK_RIGHT_DRIVE = new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
+            false, false, DRIVE_CL, DRIVE_IM
+    );
+    public static final Motor.MotorDefinition BACK_RIGHT_TURN = new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
+            false, false, TURN_CL, TURN_IM
+    );
   }
 }

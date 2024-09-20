@@ -178,3 +178,5 @@ logs/
 ctre_sim/
 
 src/main/java/com/koibots/robot/BuildConstants.java
+
+.gradle/
