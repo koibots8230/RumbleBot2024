@@ -14,6 +14,42 @@ import frc.lib.util.PIDGains;
 
 public class Constants {
 
+  public static class IndexerConstants {
+    public static final PIDGains TOP_FEEDBACK_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final PIDGains BOTTOM_FEEDBACK_GAINS = new PIDGains.Builder().kp(0).build();
+
+    public static final FeedforwardGains TOP_FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().kv(0).build();
+    public static final FeedforwardGains BOTTOM_FEEDFORWARD_GAINS =
+        new FeedforwardGains.Builder().kv(0).build();
+
+    public static final Measure<Velocity<Angle>> TOP_INTAKING_SPEED = RPM.of(200);
+    public static final Measure<Velocity<Angle>> BOTTOM_INTAKING_SPEED = RPM.of(400);
+
+    public static final Measure<Velocity<Angle>> TOP_AMP_SPEED = RPM.of(-200);
+    public static final Measure<Velocity<Angle>> BOTTOM_AMP_SPEED = RPM.of(-400);
+
+    public static final Measure<Velocity<Angle>> TOP_ALIGNING_SPEED = RPM.of(400);
+    public static final Measure<Velocity<Angle>> BOTTOM_ALIGNING_SPEED = RPM.of(400);
+
+    public static final Measure<Velocity<Angle>> TOP_SHOOTING_SPEED = RPM.of(600);
+    public static final Measure<Velocity<Angle>> BOTTOM_SHOOTING_SPEED = RPM.of(1200);
+
+    public static final double TOP_GEAR_RATIO = 1.0 / 27.0;
+    public static final double BOTTOM_GEAR_RATIO = 1.0 / 27.0;
+
+    public static final MotorConfig TOP_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(30).build();
+    public static final MotorConfig BOTTOM_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(30).build();
+
+    public static final int TOP_MOTOR_PORT = 5;
+    public static final int BOTTOM_MOTOR_PORT = 6;
+
+    public static final int TOP_NOTE_DETECTOR_PORT = 0;
+    public static final int BOTTOM_NOTE_DETECTOR_PORT = 1;
+  }
+
   public static class ElevatorConstants {
 
     public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.0).build();
@@ -28,10 +64,20 @@ public class Constants {
     public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCELERATION =
         MetersPerSecondPerSecond.of(1);
 
+    public static final Measure<Distance> AMP_POSITION = Inches.of(6);
+    public static final Measure<Distance> SHOOTING_POSITION = Inches.of(0.1);
+
     public static final double GEAR_RATIO = 10;
     public static final Measure<Distance> DRUM_SIZE = Inches.of(1);
 
     public static final Measure<Distance> MAX_HEIGHT = Inches.of(6);
+
+    public static final Measure<Distance> ALLOWED_ERROR = Inches.of(0.05);
+
+    public static final MotorConfig LEFT_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(60).build();
+    public static final MotorConfig RIGHT_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(60).build();
 
     public static final int LEFT_MOTOR_PORT = 3;
     public static final int RIGHT_MOTOR_PORT = 4;
