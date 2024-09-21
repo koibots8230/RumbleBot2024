@@ -13,6 +13,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
@@ -97,12 +98,25 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
     setpoint = position.getRadians();
   }
 
-  public Command setPositionCommand(Rotation2d position) {
-    return new InstantCommand(() -> this.setPosition(position), this);
-  }
-
   public double linnerInterpilation(double distance) {
     double angle = Constants.ShooterPivot.a * distance + Constants.ShooterPivot.b;
     return angle;
   }
+
+  public void initDefaultCommand() {
+    setDefaultCommand(
+        new InstantCommand(() -> this.setPosition(Constants.ShooterPivot.REST_POSITION)));
+  }
+
+  // to do make this part of the shooting process
+  public Command setPositionCommand(Rotation2d position) {
+    return new InstantCommand(() -> this.setPosition(position), this);
+  }
+  public void setRestPosition(Rotation2d position) {
+    setPosition(position);
+  }
+  public Command setRestPositionCommand(Rotation2d position){
+    return Commands.run(() -> setRestPosition(position), this);
+  }
+
 }

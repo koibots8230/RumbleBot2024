@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Elevator;
+import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterPivot;
 import monologue.Logged;
 import monologue.Monologue;
@@ -23,18 +24,25 @@ public class RobotContainer implements Logged {
   private Elevator elevator;
   private ShooterPivot shooterPivot;
 
+  private Shooter shooter;
+
   public RobotContainer(boolean isReal) {
     controller = new GenericHID(0);
 
     elevator = new Elevator(isReal);
+
     shooterPivot = new ShooterPivot();
+
+    shooter = new Shooter(isReal);
 
     Monologue.setupMonologue(this, "Robot", false, false);
 
     configureBindings();
+    subsystemDefualtCommands();
   }
 
   private void configureBindings() {
+
     Trigger elevatorUp = new Trigger(() -> controller.getRawButton(1));
     elevatorUp.onTrue(elevator.setPositionCommand(Inches.of(3)));
     elevatorUp.onFalse(elevator.setPositionCommand(Inches.of(0)));
@@ -42,6 +50,10 @@ public class RobotContainer implements Logged {
     Trigger setAngle = new Trigger(() -> controller.getRawButton(2));
     setAngle.onTrue(shooterPivot.setPositionCommand(Rotation2d.fromDegrees(42)));
     setAngle.onFalse(shooterPivot.setPositionCommand(Rotation2d.fromDegrees(0)));
+  }
+
+  private void subsystemDefualtCommands() {
+    shooterPivot.setDefaultCommand(shooterPivot.setRestPositionCommand(Constants.ShooterPivot.REST_POSITION));
   }
 
   public Command getAutonomousCommand() {

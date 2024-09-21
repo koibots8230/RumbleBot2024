@@ -10,7 +10,10 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Robot;
@@ -37,10 +40,10 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
-  @Log private double topSetpoint;
-  @Log private double bottomSetpoint;
-  @Log private double topShoterVelocity;
-  @Log private double bottomShoterVelocity;
+  @Log private Measure<Velocity<Angle>> topSetpoint;
+  @Log private Measure<Velocity<Angle>> bottomSetpoint;
+  @Log private Measure<Velocity<Angle>> topShoterVelocity;
+  @Log private Measure<Velocity<Angle>> bottomShoterVelocity;
   @Log private double bottomShoterCurrent;
   @Log private double topshoterCurrent;
   @Log private double topAppliedVoltage;
@@ -113,13 +116,11 @@ public class Shooter extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
-    // TODO Periodic is always called on real objects. Remove the "if block" around
-    // these calls.
-    if (Robot.isReal()) {
-      rightController.setReference(topSetpoint, ControlType.kVelocity);
-      leftController.setReference(bottomSetpoint, ControlType.kVelocity);
-      topShoterVelocity = rightEncoder.getVelocity();
-      bottomShoterVelocity = leftEncoder.getVelocity();
+    {
+      rightController.setReference(topSetpoint.in(RPM), ControlType.kVelocity);
+      leftController.setReference(bottomSetpoint.in(RPM), ControlType.kVelocity);
+      topShoterVelocity = RPM.of(rightEncoder.getVelocity());
+      bottomShoterVelocity = RPM.of(leftEncoder.getVelocity());
       topAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
       bottomAppliedVoltage = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
       topshoterCurrent = rightMotor.getOutputCurrent();
@@ -133,26 +134,34 @@ public class Shooter extends SubsystemBase implements Logged {
     bottomSimMotor.update(.02);
 
     topshoterCurrent = topSimMotor.getCurrentDrawAmps();
-    topShoterVelocity = topSimMotor.getAngularVelocityRPM();
+    topShoterVelocity = Units.RPM.of(topSimMotor.getAngularVelocityRPM());
 
-    bottomShoterVelocity = bottomSimMotor.getAngularVelocityRPM();
+    bottomShoterVelocity = Units.RPM.of(bottomSimMotor.getAngularVelocityRPM());
     bottomShoterCurrent = bottomSimMotor.getCurrentDrawAmps();
 
     topAppliedVoltage =
-        topSimPID.calculate(topShoterVelocity, topSetpoint)
-            + topSimFeedforward.calculate(topSetpoint);
+        topSimPID.calculate(topShoterVelocity.in(RPM), topSetpoint.in(RPM))
+            + topSimFeedforward.calculate(topSetpoint.in(RPM));
     bottomAppliedVoltage =
-        bottomSimPID.calculate(bottomShoterVelocity, bottomSetpoint)
-            + bottomSimFeedforward.calculate(bottomSetpoint);
+        bottomSimPID.calculate(bottomShoterVelocity.in(RPM), bottomSetpoint.in(RPM))
+            + bottomSimFeedforward.calculate(bottomSetpoint.in(RPM));
 
     topSimMotor.setInputVoltage(topAppliedVoltage);
     bottomSimMotor.setInputVoltage(bottomAppliedVoltage);
   }
 
   // TODO are separate velocities needed for top and bottom?
-  public void setVelocity(double topSetpoint, double bottomSetpoint) {
+  public void setVelocity(
+      Measure<Velocity<Angle>> topSetpoint, Measure<Velocity<Angle>> bottomSetpoint) {
+    rightController.setOutputRange(-12, 12);
+    leftController.setOutputRange(-12, 12);
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
+  }
+
+  public Command SetVelocityCommand(
+      Measure<Velocity<Angle>> topSetpoint, Measure<Velocity<Angle>> bottomSetpoint) {
+    return Commands.run(() -> setVelocity(topSetpoint, bottomSetpoint), this);
   }
 
   // TODO this check should use the target set points that are passed into
@@ -165,5 +174,14 @@ public class Shooter extends SubsystemBase implements Logged {
         && Math.abs(
                 leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER.in(RPM))
             <= ShooterConstants.SHOOTER_RANGE;
+  }
+
+  public void ShooterRest() {
+    rightController.setOutputRange(0.0, 0.0);
+    leftController.setOutputRange(0.0, 0.0);
+  }
+
+  public Command ShooterRestCommand() {
+    return Commands.run(() -> ShooterRest(), this);
   }
 }
