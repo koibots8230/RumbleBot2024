@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 
+import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -22,6 +23,7 @@ public class Drivetrain extends SubsystemBase {
     @Log private final SwerveModulePosition[] modulePositionReal;
     private final SwerveDriveKinematics kinematics;
     private final SwerveDriveOdometry odometry;
+    private final Pigeon2 gyro;
 
     public Drivetrain(boolean isReal) {
         // TODO: Set the default command, if any, for this subsystem by calling setDefaultCommand(command)
@@ -61,6 +63,8 @@ public class Drivetrain extends SubsystemBase {
                 backRightModule.getPosition()
         };
 
+        gyro = new Pigeon2(Constants.RobotConstants.GYRO_ID);
+
         kinematics = new SwerveDriveKinematics(
                 new Translation2d(
                         Constants.RobotConstants.LENGTH.divide(2).minus(Constants.RobotConstants.WHEEL_OFFSET),
@@ -83,7 +87,19 @@ public class Drivetrain extends SubsystemBase {
         odometry = new SwerveDriveOdometry(kinematics, Rotation2d.fromRadians(0), modulePositionReal);
     }
 
-    public void set(ChassisSpeeds chassisSpeeds) {}
+    public void set(ChassisSpeeds chassisSpeeds) {
+        SwerveModuleState[] moduleStates = kinematics.toSwerveModuleStates(chassisSpeeds);
+
+        frontLeftModule.setState(moduleStates[0]);
+        frontRightModule.setState(moduleStates[1]);
+        backLeftModule.setState(moduleStates[2]);
+        backRightModule.setState(moduleStates[3]);
+
+        moduleSetpoints[0] = moduleStates[0];
+        moduleSetpoints[1] = moduleStates[1];
+        moduleSetpoints[2] = moduleStates[2];
+        moduleSetpoints[3] = moduleStates[3];
+    }
 
     public SwerveModuleState[] getModuleReal() {
         return moduleReal;
@@ -94,8 +110,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Pose2d getPose() {
-        return new Pose2d();
-        //TODO: Actually implement
+        return odometry.getPoseMeters();
     }
 
     @Override
@@ -114,6 +129,8 @@ public class Drivetrain extends SubsystemBase {
         modulePositionReal[1] = frontRightModule.getPosition();
         modulePositionReal[2] = backLeftModule.getPosition();
         modulePositionReal[3] = backRightModule.getPosition();
+
+        odometry.update(gyro.getRotation2d(), modulePositionReal);
     }
 
     private static class SwerveModule {

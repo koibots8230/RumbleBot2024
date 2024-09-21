@@ -16,6 +16,12 @@ public class Constants {
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
     public static final Measure<Distance> WHEEL_OFFSET = Inches.of(1.754419);
     public static final double DRIVE_POSITION_FACTOR = 1.0;
+    public static final int GYRO_ID = 24;
+  }
+
+  public static class DriveConstants {
+    public static final Measure<Velocity<Distance>> MAX_VELOCITY = MetersPerSecond.of(3);
+    public static final Measure<Velocity<Angle>> MAX_ROTATION = RPM.of(60);
   }
 
   public static class IndexerConstants {
