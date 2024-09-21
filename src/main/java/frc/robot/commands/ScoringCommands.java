@@ -16,20 +16,15 @@ public class ScoringCommands {
   }
 
   public static Command shootSpeaker(
-      Elevator elevator,
-      Indexer indexer,
-      Shooter shooter,
-      ShooterPivot shooterPivot) {
+      Elevator elevator, Indexer indexer, Shooter shooter, ShooterPivot shooterPivot) {
     return Commands.sequence(
         elevator.setPositionCommand(ElevatorConstants.SHOOTING_POSITION),
         Commands.parallel(
             indexer.alignForShot(),
             shooter.SetVelocityCommand(
                 Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER,
-                Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER)
-            // TODO: Add change shooter angle command
-            // TODO: Add shoot command
-            ),
+                Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER),
+            shooterPivot.setAngleCommand(tempval)),
         indexer.shootSpeaker(),
         Commands.parallel(shooter.ShooterRestCommand()));
   }
