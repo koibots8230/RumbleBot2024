@@ -162,10 +162,10 @@ public class Constants {
 
   public static class DrivetrainConstants {
     public static final double DRIVE_TURN_KS = 0.0;
-    public static final PIDGains TURN_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(2.078).build();
+    public static final PIDGains TURN_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(2.078 / 20d).build();
     public static final PIDGains TURN_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(35).build();
     public static final PIDGains DRIVE_PID_CONSTANTS_REAL =
-        new PIDGains.Builder().kp(5.5208e-10).build();
+        new PIDGains.Builder().kp(5.5208e-10 / 20d).build();
     public static final PIDGains DRIVE_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(40).build();
     public static final FeedforwardGains DRIVE_FEEDFORWARD_REAL =
         new FeedforwardGains.Builder().ks(0.11386).kv(2.6819).ka(0.16507).build();
