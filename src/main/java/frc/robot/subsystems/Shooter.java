@@ -131,9 +131,9 @@ public class Shooter extends SubsystemBase implements Logged {
     bottomSimMotor.update(.02);
 
     topshoterCurrent = topSimMotor.getCurrentDrawAmps();
-    topShoterVelocity = (topSimMotor.getAngularVelocityRPM());
+    topShoterVelocity = topSimMotor.getAngularVelocityRPM();
 
-    bottomShoterVelocity = (bottomSimMotor.getAngularVelocityRPM());
+    bottomShoterVelocity = bottomSimMotor.getAngularVelocityRPM();
     bottomShoterCurrent = bottomSimMotor.getCurrentDrawAmps();
 
     topAppliedVoltage =
