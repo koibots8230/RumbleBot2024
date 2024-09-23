@@ -9,11 +9,13 @@ import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 import monologue.Annotations.Log;
@@ -40,12 +42,12 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
   public ShooterPivot() {
     super(
         new TrapezoidProfile.Constraints(
-            Constants.ShooterPivot.MAX_VELOCITY.getRadians(),
-            Constants.ShooterPivot.MAX_ACCLERATION.getRadians()),
+            Constants.ShooterPivotConstants.MAX_VELOCITY.getRadians(),
+            Constants.ShooterPivotConstants.MAX_ACCLERATION.getRadians()),
         0.0);
 
     shooterPivotMotor =
-        new CANSparkMax(Constants.ShooterPivot.SHOOTER_PIVOT_MOTER, MotorType.kBrushless);
+        new CANSparkMax(Constants.ShooterPivotConstants.SHOOTER_PIVOT_MOTER, MotorType.kBrushless);
 
     encoder = shooterPivotMotor.getAbsoluteEncoder();
 
@@ -53,14 +55,14 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
 
     armFeedforward =
         new ArmFeedforward(
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.ks,
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.kg,
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.kv,
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.ka);
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.ks,
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.kg,
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.kv,
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.ka);
 
-    angPidController.setP(Constants.ShooterPivot.PID_GAINS.kp);
-    angPidController.setI(Constants.ShooterPivot.PID_GAINS.ki);
-    angPidController.setD(Constants.ShooterPivot.PID_GAINS.kd);
+    angPidController.setP(Constants.ShooterPivotConstants.PID_GAINS.kp);
+    angPidController.setI(Constants.ShooterPivotConstants.PID_GAINS.ki);
+    angPidController.setD(Constants.ShooterPivotConstants.PID_GAINS.kd);
 
     angPidController.setFeedbackDevice(encoder);
 
@@ -97,12 +99,34 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
     setpoint = position.getRadians();
   }
 
-  public Command setPositionCommand(Rotation2d position) {
-    return new InstantCommand(() -> this.setPosition(position), this);
+  public Rotation2d getEstimatedAngle(double distance) {
+    double angle =
+        Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE * distance
+            + Constants.ShooterPivotConstants.Y_INTERCEPT;
+    return Rotation2d.fromDegrees(angle);
   }
 
-  public double linnerInterpilation(double distance) {
-    double angle = Constants.ShooterPivot.a * distance + Constants.ShooterPivot.b;
-    return angle;
+  public double getSpeakerDistance(Pose2d robotPose) {
+    if (DriverStation.getAlliance().isPresent()) {
+      Pose2d speakerPose =
+          DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+              ? Constants.FieldConstants.BLUE_SPEAKER_POSE
+              : Constants.FieldConstants.RED_SPEAKER_POSE;
+      double speakerDistance =
+          Math.hypot(
+              (robotPose.getX() - speakerPose.getX()), (robotPose.getY() - speakerPose.getY()));
+      return speakerDistance;
+    }
+    return 0.0;
+  }
+
+  // to do make this part of the shooting process
+  public Command setPositionCommand(Rotation2d position) {
+    return Commands.runOnce(() -> this.setPosition(position), this);
+  }
+
+  public Command autoSetAngle(Pose2d tempval) {
+    return Commands.runOnce(
+        () -> setPosition(getEstimatedAngle(getSpeakerDistance(tempval))), this);
   }
 }

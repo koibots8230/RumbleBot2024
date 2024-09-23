@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.RPM;
-
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -11,6 +9,8 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Robot;
@@ -113,13 +113,11 @@ public class Shooter extends SubsystemBase implements Logged {
 
   @Override
   public void periodic() {
-    // TODO Periodic is always called on real objects. Remove the "if block" around
-    // these calls.
-    if (Robot.isReal()) {
+    {
       rightController.setReference(topSetpoint, ControlType.kVelocity);
       leftController.setReference(bottomSetpoint, ControlType.kVelocity);
-      topShoterVelocity = rightEncoder.getVelocity();
-      bottomShoterVelocity = leftEncoder.getVelocity();
+      topShoterVelocity = (rightEncoder.getVelocity());
+      bottomShoterVelocity = (leftEncoder.getVelocity());
       topAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
       bottomAppliedVoltage = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
       topshoterCurrent = rightMotor.getOutputCurrent();
@@ -150,20 +148,40 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   // TODO are separate velocities needed for top and bottom?
-  public void setVelocity(double topSetpoint, double bottomSetpoint) {
+  private void setVelocity(double topSetpoint, double bottomSetpoint) {
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
   }
 
   // TODO this check should use the target set points that are passed into
-  // setVelocity, not from the
-  // constants file.
-  public boolean checkVelocity() {
-    return Math.abs(
-                rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER.in(RPM))
+
+  public boolean checkVelocitySpeaker() {
+    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER)
             <= ShooterConstants.SHOOTER_RANGE
-        && Math.abs(
-                leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER.in(RPM))
+        && Math.abs(leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER)
             <= ShooterConstants.SHOOTER_RANGE;
+  }
+
+  public boolean checkRestVelocity() {
+    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.REST_SETPOINT)
+            <= ShooterConstants.SHOOTER_RANGE
+        && Math.abs(leftEncoder.getVelocity() - ShooterConstants.REST_SETPOINT)
+            <= ShooterConstants.SHOOTER_RANGE;
+  }
+
+  private void ShooterRest() {
+    rightController.setReference(0.0, ControlType.kVoltage);
+    leftController.setReference(0.0, ControlType.kVoltage);
+  }
+
+  public Command ShooterRestCommand() {
+    return Commands.sequence(
+        Commands.runOnce(() -> ShooterRest(), this), Commands.waitUntil(() -> checkRestVelocity()));
+  }
+
+  public Command setVelocityCommand(double topSetpoint, double bottomSetpoint) {
+    return Commands.sequence(
+        Commands.runOnce(() -> setVelocity(topSetpoint, bottomSetpoint), this),
+        Commands.waitUntil(() -> checkVelocitySpeaker()));
   }
 }

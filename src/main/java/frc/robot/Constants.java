@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import frc.lib.motor.Motor;
@@ -16,6 +17,13 @@ public class Constants {
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
     public static final Measure<Distance> WHEEL_OFFSET = Inches.of(1.754419);
     public static final double DRIVE_POSITION_FACTOR = 1.0;
+  }
+
+  public static class FieldConstants {
+
+    public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
+
+    public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
   }
 
   public static class IndexerConstants {
@@ -88,7 +96,7 @@ public class Constants {
   }
 
   //  TODO add actual values into here
-  public static class ShooterPivot {
+  public static class ShooterPivotConstants {
 
     public static final int SHOOTER_PIVOT_MOTER = 0;
 
@@ -101,20 +109,22 @@ public class Constants {
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
 
-    public static final double a = 0.0;
-    public static final double b = 0.0;
+    public static final double AUTO_ANGLE_SLOPE = 0.0;
+    public static final double Y_INTERCEPT = 0.0;
 
+    public static final Rotation2d REST_POSITION = Rotation2d.fromDegrees(21);
   }
 
   public static class ShooterConstants {
     // 1
 
-    public static final Measure<Velocity<Angle>> TOP_MOTOR_SETPOINT_SPEAKER =
-        RPM.of(600); // todo set actaul val for setpoint
-    public static final Measure<Velocity<Angle>> BOTTOM_MOTOR_SETPOINT_SPEAKER =
-        RPM.of(1000); // todo set actaul val for setpoint
+    public static final double TOP_MOTOR_SETPOINT_SPEAKER = 600; // todo set actaul val for setpoint
+    public static final double BOTTOM_MOTOR_SETPOINT_SPEAKER =
+        1000; // todo set actaul val for setpoint
 
     // 2
+
+    public static final double REST_SETPOINT = 500;
 
     public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.008).build();
     public static final FeedforwardGains FEEDFORWARD_GAINS =
@@ -162,38 +172,34 @@ public class Constants {
     private static final Measure<Current> TURN_CL = Amps.of(30.0); // Current Limit
     private static final Motor.IdleMode TURN_IM = Motor.IdleMode.BREAK;
 
-    public static final Motor.MotorDefinition FRONT_LEFT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition FRONT_LEFT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
-    public static final Motor.MotorDefinition FRONT_RIGHT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition FRONT_RIGHT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
-    public static final Motor.MotorDefinition BACK_LEFT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition BACK_LEFT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
-    public static final Motor.MotorDefinition BACK_RIGHT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition BACK_RIGHT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
+    public static final Motor.MotorDefinition FRONT_LEFT_DRIVE =
+        new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF, false, false, DRIVE_CL,
+            DRIVE_IM);
+    public static final Motor.MotorDefinition FRONT_LEFT_TURN =
+        new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF, false, false, TURN_CL, TURN_IM);
+    public static final Motor.MotorDefinition FRONT_RIGHT_DRIVE =
+        new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF, false, false, DRIVE_CL,
+            DRIVE_IM);
+    public static final Motor.MotorDefinition FRONT_RIGHT_TURN =
+        new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF, false, false, TURN_CL, TURN_IM);
+    public static final Motor.MotorDefinition BACK_LEFT_DRIVE =
+        new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF, false, false, DRIVE_CL,
+            DRIVE_IM);
+    public static final Motor.MotorDefinition BACK_LEFT_TURN =
+        new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF, false, false, TURN_CL, TURN_IM);
+    public static final Motor.MotorDefinition BACK_RIGHT_DRIVE =
+        new Motor.MotorDefinition(
+            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF, false, false, DRIVE_CL,
+            DRIVE_IM);
+    public static final Motor.MotorDefinition BACK_RIGHT_TURN =
+        new Motor.MotorDefinition(
+            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF, false, false, TURN_CL, TURN_IM);
   }
 
   public static class IntakeConstants {
