@@ -3,6 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.CANSparkBase.IdleMode;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.*;
 import frc.lib.motor.Motor;
@@ -16,6 +17,13 @@ public class Constants {
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
     public static final Measure<Distance> WHEEL_OFFSET = Inches.of(1.754419);
     public static final double DRIVE_POSITION_FACTOR = 1.0;
+  }
+
+  public  static class FiledConstants {
+
+    public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
+
+    public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
   }
 
   public static class IndexerConstants {
@@ -101,8 +109,8 @@ public class Constants {
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
 
-    public static final double a = 0.0;
-    public static final double b = 0.0;
+    public static final double AUTO_ANGLE_SLOPE = 0.0;
+    public static final double Y_INTERCEPT = 0.0;
 
     public static final Rotation2d REST_POSITION = Rotation2d.fromDegrees(21);
   }

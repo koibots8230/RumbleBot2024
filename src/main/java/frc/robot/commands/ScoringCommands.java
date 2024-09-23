@@ -21,10 +21,10 @@ public class ScoringCommands {
         elevator.setPositionCommand(ElevatorConstants.SHOOTING_POSITION),
         Commands.parallel(
             indexer.alignForShot(),
-            shooter.SetVelocityCommand(
+            shooter.setVelocityCommand(
                 Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER,
                 Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER),
-            shooterPivot.setAngleCommand(tempval)),
+            shooterPivot.autoSetAngle(null)),
         indexer.shootSpeaker(),
         Commands.parallel(shooter.ShooterRestCommand()));
   }

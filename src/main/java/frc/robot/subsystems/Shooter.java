@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.RPM;
-
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -19,6 +17,8 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Robot;
 import monologue.Annotations.Log;
 import monologue.Logged;
+
+import static edu.wpi.first.units.Units.*;
 
 public class Shooter extends SubsystemBase implements Logged {
 
@@ -40,10 +40,10 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
-  @Log private Measure<Velocity<Angle>> topSetpoint;
-  @Log private Measure<Velocity<Angle>> bottomSetpoint;
-  @Log private Measure<Velocity<Angle>> topShoterVelocity;
-  @Log private Measure<Velocity<Angle>> bottomShoterVelocity;
+  private double topSetpoint;
+  private double bottomSetpoint;
+  private double topShoterVelocity;
+  private double bottomShoterVelocity;
   @Log private double bottomShoterCurrent;
   @Log private double topshoterCurrent;
   @Log private double topAppliedVoltage;
@@ -117,10 +117,10 @@ public class Shooter extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
     {
-      rightController.setReference(topSetpoint.in(RPM), ControlType.kVelocity);
-      leftController.setReference(bottomSetpoint.in(RPM), ControlType.kVelocity);
-      topShoterVelocity = RPM.of(rightEncoder.getVelocity());
-      bottomShoterVelocity = RPM.of(leftEncoder.getVelocity());
+      rightController.setReference(topSetpoint, ControlType.kVelocity);
+      leftController.setReference(bottomSetpoint, ControlType.kVelocity);
+      topShoterVelocity = (rightEncoder.getVelocity());
+      bottomShoterVelocity = (leftEncoder.getVelocity());
       topAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
       bottomAppliedVoltage = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
       topshoterCurrent = rightMotor.getOutputCurrent();
@@ -134,33 +134,31 @@ public class Shooter extends SubsystemBase implements Logged {
     bottomSimMotor.update(.02);
 
     topshoterCurrent = topSimMotor.getCurrentDrawAmps();
-    topShoterVelocity = Units.RPM.of(topSimMotor.getAngularVelocityRPM());
+    topShoterVelocity = (topSimMotor.getAngularVelocityRPM());
 
-    bottomShoterVelocity = Units.RPM.of(bottomSimMotor.getAngularVelocityRPM());
+    bottomShoterVelocity = (bottomSimMotor.getAngularVelocityRPM());
     bottomShoterCurrent = bottomSimMotor.getCurrentDrawAmps();
 
     topAppliedVoltage =
-        topSimPID.calculate(topShoterVelocity.in(RPM), topSetpoint.in(RPM))
-            + topSimFeedforward.calculate(topSetpoint.in(RPM));
+        topSimPID.calculate(topShoterVelocity, topSetpoint)
+            + topSimFeedforward.calculate(topSetpoint);
     bottomAppliedVoltage =
-        bottomSimPID.calculate(bottomShoterVelocity.in(RPM), bottomSetpoint.in(RPM))
-            + bottomSimFeedforward.calculate(bottomSetpoint.in(RPM));
+        bottomSimPID.calculate(bottomShoterVelocity, bottomSetpoint)
+            + bottomSimFeedforward.calculate(bottomSetpoint);
 
     topSimMotor.setInputVoltage(topAppliedVoltage);
     bottomSimMotor.setInputVoltage(bottomAppliedVoltage);
   }
 
   // TODO are separate velocities needed for top and bottom?
-  public void setVelocity(
-      Measure<Velocity<Angle>> topSetpoint, Measure<Velocity<Angle>> bottomSetpoint) {
-    rightController.setOutputRange(-12, 12);
-    leftController.setOutputRange(-12, 12);
+  private void setVelocity(
+       double topSetpoint, double bottomSetpoint) {
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
   }
 
-  public Command SetVelocityCommand(
-      Measure<Velocity<Angle>> topSetpoint, Measure<Velocity<Angle>> bottomSetpoint) {
+  public Command setVelocityCommand(
+      double topSetpoint, double bottomSetpoint) {
     return Commands.run(() -> setVelocity(topSetpoint, bottomSetpoint), this);
   }
 
@@ -176,9 +174,9 @@ public class Shooter extends SubsystemBase implements Logged {
             <= ShooterConstants.SHOOTER_RANGE;
   }
 
-  public void ShooterRest() {
-    rightController.setOutputRange(0.0, 0.0);
-    leftController.setOutputRange(0.0, 0.0);
+  private void ShooterRest() {
+    rightController.setReference(0.0, ControlType.kVoltage);
+    leftController.setReference(0.0, ControlType.kVoltage);
   }
 
   public Command ShooterRestCommand() {

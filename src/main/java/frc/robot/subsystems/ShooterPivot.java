@@ -16,7 +16,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile.State;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileSubsystem;
 import frc.robot.Constants;
 import monologue.Annotations.Log;
@@ -101,39 +100,27 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
   }
 
   public Rotation2d getEstimatedAngle(double distance) {
-    double angle = Constants.ShooterPivot.a * distance + Constants.ShooterPivot.b;
+    double angle = Constants.ShooterPivot.AUTO_ANGLE_SLOPE * distance + Constants.ShooterPivot.Y_INTERCEPT;
     return Rotation2d.fromDegrees(angle);
   }
 
-  public double speakerDistance(Pose2d RobotPose) {
-    if (DriverStation.getAlliance().isPresent()) {
-      if (DriverStation.getAlliance().get() == DriverStation.Alliance.Red) {
-        double redSpeakerDistance =
-            Math.hypot((RobotPose.getX() - 16.58), (RobotPose.getY() - 5.55));
-        return redSpeakerDistance;
-
-      } else {
-        double blueSpeakerDistance = Math.hypot((RobotPose.getX() - 0), (RobotPose.getY() - 5.55));
-        return blueSpeakerDistance;
+  public double getSpeakerDistance(Pose2d robotPose) {
+      if (DriverStation.getAlliance().isPresent()) {
+        Pose2d speakerPose = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue ? Constants.FiledConstants.BLUE_SPEAKER_POSE : Constants.FiledConstants.RED_SPEAKER_POSE;
+        double speakerDistance = Math.hypot((robotPose.getX() - speakerPose.getX()), (robotPose.getY() - speakerPose.getY()));
+        return speakerDistance;
       }
-    }
     return 0.0;
   }
 
+
+
   // to do make this part of the shooting process
   public Command setPositionCommand(Rotation2d position) {
-    return new InstantCommand(() -> this.setPosition(position), this);
+    return Commands.run(() -> this.setPosition(position), this);
   }
 
-  public void setRestPosition(Rotation2d position) {
-    setPosition(position);
-  }
-
-  public Command setRestPositionCommand(Rotation2d position) {
-    return Commands.run(() -> setRestPosition(position), this);
-  }
-
-  public Command setAngleCommand(Pose2d tempval) {
-    return Commands.run(() -> setPosition(getEstimatedAngle(speakerDistance(tempval))));
+  public Command autoSetAngle(Pose2d tempval) {
+    return Commands.run(() -> setPosition(getEstimatedAngle(getSpeakerDistance(tempval))), this);
   }
 }
