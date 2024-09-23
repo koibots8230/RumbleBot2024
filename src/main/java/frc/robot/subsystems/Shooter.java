@@ -37,10 +37,10 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
-  @Log double topSetpoint;
-  @Log double bottomSetpoint;
-  @Log double topShoterVelocity;
-  @Log double bottomShoterVelocity;
+  @Log private double topSetpoint;
+  @Log private double bottomSetpoint;
+  @Log private double topShoterVelocity;
+  @Log private double bottomShoterVelocity;
   @Log private double bottomShoterCurrent;
   @Log private double topshoterCurrent;
   @Log private double topAppliedVoltage;
