@@ -54,7 +54,7 @@ public class RobotContainer implements Logged {
 
   private void subsystemDefualtCommands() {
     shooterPivot.setDefaultCommand(
-        shooterPivot.setPositionCommand(Constants.ShooterPivot.REST_POSITION));
+        shooterPivot.setPositionCommand(Constants.ShooterPivotConstants.REST_POSITION));
   }
 
   public Command getAutonomousCommand() {

@@ -1,7 +1,5 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
-
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -10,7 +8,6 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -40,10 +37,10 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
-  private double topSetpoint;
-  private double bottomSetpoint;
-  private double topShoterVelocity;
-  private double bottomShoterVelocity;
+  @Log double topSetpoint;
+  @Log double bottomSetpoint;
+  @Log double topShoterVelocity;
+  @Log double bottomShoterVelocity;
   @Log private double bottomShoterCurrent;
   @Log private double topshoterCurrent;
   @Log private double topAppliedVoltage;
@@ -156,19 +153,19 @@ public class Shooter extends SubsystemBase implements Logged {
     this.bottomSetpoint = bottomSetpoint;
   }
 
-  public Command setVelocityCommand(double topSetpoint, double bottomSetpoint) {
-    return Commands.run(() -> setVelocity(topSetpoint, bottomSetpoint), this);
+  // TODO this check should use the target set points that are passed into
+
+  public boolean checkVelocitySpeaker() {
+    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER)
+            <= ShooterConstants.SHOOTER_RANGE
+        && Math.abs(leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER)
+            <= ShooterConstants.SHOOTER_RANGE;
   }
 
-  // TODO this check should use the target set points that are passed into
-  // setVelocity, not from the
-  // constants file.
-  public boolean checkVelocity() {
-    return Math.abs(
-                rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER.in(RPM))
+  public boolean checkRestVelocity() {
+    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.REST_SETPOINT)
             <= ShooterConstants.SHOOTER_RANGE
-        && Math.abs(
-                leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER.in(RPM))
+        && Math.abs(leftEncoder.getVelocity() - ShooterConstants.REST_SETPOINT)
             <= ShooterConstants.SHOOTER_RANGE;
   }
 
@@ -178,6 +175,14 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   public Command ShooterRestCommand() {
-    return Commands.run(() -> ShooterRest(), this);
+    return Commands.sequence(
+        Commands.runOnce(() -> ShooterRest(), this),
+        Commands.waitUntil(() -> checkRestVelocity()));
+  }
+
+  public Command setVelocityCommand(double topSetpoint, double bottomSetpoint) {
+    return Commands.sequence(
+        Commands.runOnce(() -> setVelocity(topSetpoint, bottomSetpoint), this),
+        Commands.waitUntil(() -> checkVelocitySpeaker()));
   }
 }

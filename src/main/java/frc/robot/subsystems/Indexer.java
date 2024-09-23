@@ -115,25 +115,25 @@ public class Indexer extends SubsystemBase implements Logged {
 
   public Command alignForShot() {
     return Commands.sequence(
-        Commands.run(
+        Commands.runOnce(
             () ->
                 this.setVelocity(
                     IndexerConstants.TOP_ALIGNING_SPEED, IndexerConstants.BOTTOM_ALIGNING_SPEED),
             this),
         Commands.waitUntil(() -> bottomNoteDetector.get()),
-        Commands.run(
+        Commands.runOnce(
             () ->
                 this.setVelocity(
                     IndexerConstants.TOP_ALIGNING_SPEED,
                     IndexerConstants.BOTTOM_ALIGNING_SPEED.times(-1)),
             this),
         Commands.waitUntil(() -> !topNoteDetector.get()),
-        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
+        Commands.runOnce(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
   }
 
   public Command shootSpeaker() {
     return Commands.sequence(
-        Commands.run(
+        Commands.runOnce(
             () ->
                 this.setVelocity(
                     IndexerConstants.TOP_SHOOTING_SPEED, IndexerConstants.BOTTOM_SHOOTING_SPEED),
@@ -141,17 +141,17 @@ public class Indexer extends SubsystemBase implements Logged {
         Commands.waitSeconds(0.1),
         Commands.waitUntil(() -> !this.topNoteDetector.get()),
         Commands.waitSeconds(0.5),
-        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
+        Commands.runOnce(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
   }
 
   public Command scoreAmp() {
     return Commands.sequence(
-        Commands.run(
+        Commands.runOnce(
             () ->
                 this.setVelocity(IndexerConstants.TOP_AMP_SPEED, IndexerConstants.BOTTOM_AMP_SPEED),
             this),
         Commands.waitUntil(() -> bottomNoteDetector.get()),
         Commands.waitSeconds(0.5),
-        Commands.run(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
+        Commands.runOnce(() -> this.setVelocity(RPM.of(0), RPM.of(0)), this));
   }
 }

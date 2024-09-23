@@ -42,12 +42,12 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
   public ShooterPivot() {
     super(
         new TrapezoidProfile.Constraints(
-            Constants.ShooterPivot.MAX_VELOCITY.getRadians(),
-            Constants.ShooterPivot.MAX_ACCLERATION.getRadians()),
+            Constants.ShooterPivotConstants.MAX_VELOCITY.getRadians(),
+            Constants.ShooterPivotConstants.MAX_ACCLERATION.getRadians()),
         0.0);
 
     shooterPivotMotor =
-        new CANSparkMax(Constants.ShooterPivot.SHOOTER_PIVOT_MOTER, MotorType.kBrushless);
+        new CANSparkMax(Constants.ShooterPivotConstants.SHOOTER_PIVOT_MOTER, MotorType.kBrushless);
 
     encoder = shooterPivotMotor.getAbsoluteEncoder();
 
@@ -55,14 +55,14 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
 
     armFeedforward =
         new ArmFeedforward(
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.ks,
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.kg,
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.kv,
-            Constants.ShooterPivot.FEEDFORWARD_GAINS.ka);
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.ks,
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.kg,
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.kv,
+            Constants.ShooterPivotConstants.FEEDFORWARD_GAINS.ka);
 
-    angPidController.setP(Constants.ShooterPivot.PID_GAINS.kp);
-    angPidController.setI(Constants.ShooterPivot.PID_GAINS.ki);
-    angPidController.setD(Constants.ShooterPivot.PID_GAINS.kd);
+    angPidController.setP(Constants.ShooterPivotConstants.PID_GAINS.kp);
+    angPidController.setI(Constants.ShooterPivotConstants.PID_GAINS.ki);
+    angPidController.setD(Constants.ShooterPivotConstants.PID_GAINS.kd);
 
     angPidController.setFeedbackDevice(encoder);
 
@@ -101,7 +101,8 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
 
   public Rotation2d getEstimatedAngle(double distance) {
     double angle =
-        Constants.ShooterPivot.AUTO_ANGLE_SLOPE * distance + Constants.ShooterPivot.Y_INTERCEPT;
+        Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE * distance
+            + Constants.ShooterPivotConstants.Y_INTERCEPT;
     return Rotation2d.fromDegrees(angle);
   }
 
@@ -109,8 +110,8 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
     if (DriverStation.getAlliance().isPresent()) {
       Pose2d speakerPose =
           DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
-              ? Constants.FiledConstants.BLUE_SPEAKER_POSE
-              : Constants.FiledConstants.RED_SPEAKER_POSE;
+              ? Constants.FieldConstants.BLUE_SPEAKER_POSE
+              : Constants.FieldConstants.RED_SPEAKER_POSE;
       double speakerDistance =
           Math.hypot(
               (robotPose.getX() - speakerPose.getX()), (robotPose.getY() - speakerPose.getY()));
@@ -121,10 +122,11 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
 
   // to do make this part of the shooting process
   public Command setPositionCommand(Rotation2d position) {
-    return Commands.run(() -> this.setPosition(position), this);
+    return Commands.runOnce(() -> this.setPosition(position), this);
   }
 
   public Command autoSetAngle(Pose2d tempval) {
-    return Commands.run(() -> setPosition(getEstimatedAngle(getSpeakerDistance(tempval))), this);
+    return Commands.runOnce(
+        () -> setPosition(getEstimatedAngle(getSpeakerDistance(tempval))), this);
   }
 }
