@@ -176,8 +176,7 @@ public class Shooter extends SubsystemBase implements Logged {
 
   public Command ShooterRestCommand() {
     return Commands.sequence(
-        Commands.runOnce(() -> ShooterRest(), this),
-        Commands.waitUntil(() -> checkRestVelocity()));
+        Commands.runOnce(() -> ShooterRest(), this), Commands.waitUntil(() -> checkRestVelocity()));
   }
 
   public Command setVelocityCommand(double topSetpoint, double bottomSetpoint) {
