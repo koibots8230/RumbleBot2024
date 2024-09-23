@@ -1,5 +1,7 @@
 package frc.robot.subsystems;
 
+import static edu.wpi.first.units.Units.*;
+
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -17,8 +19,6 @@ import frc.robot.Constants.ShooterConstants;
 import frc.robot.Robot;
 import monologue.Annotations.Log;
 import monologue.Logged;
-
-import static edu.wpi.first.units.Units.*;
 
 public class Shooter extends SubsystemBase implements Logged {
 
@@ -151,14 +151,12 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   // TODO are separate velocities needed for top and bottom?
-  private void setVelocity(
-       double topSetpoint, double bottomSetpoint) {
+  private void setVelocity(double topSetpoint, double bottomSetpoint) {
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
   }
 
-  public Command setVelocityCommand(
-      double topSetpoint, double bottomSetpoint) {
+  public Command setVelocityCommand(double topSetpoint, double bottomSetpoint) {
     return Commands.run(() -> setVelocity(topSetpoint, bottomSetpoint), this);
   }
 

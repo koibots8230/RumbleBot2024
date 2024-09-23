@@ -19,7 +19,7 @@ public class Constants {
     public static final double DRIVE_POSITION_FACTOR = 1.0;
   }
 
-  public  static class FiledConstants {
+  public static class FiledConstants {
 
     public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
 

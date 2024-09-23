@@ -100,20 +100,24 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
   }
 
   public Rotation2d getEstimatedAngle(double distance) {
-    double angle = Constants.ShooterPivot.AUTO_ANGLE_SLOPE * distance + Constants.ShooterPivot.Y_INTERCEPT;
+    double angle =
+        Constants.ShooterPivot.AUTO_ANGLE_SLOPE * distance + Constants.ShooterPivot.Y_INTERCEPT;
     return Rotation2d.fromDegrees(angle);
   }
 
   public double getSpeakerDistance(Pose2d robotPose) {
-      if (DriverStation.getAlliance().isPresent()) {
-        Pose2d speakerPose = DriverStation.getAlliance().get() == DriverStation.Alliance.Blue ? Constants.FiledConstants.BLUE_SPEAKER_POSE : Constants.FiledConstants.RED_SPEAKER_POSE;
-        double speakerDistance = Math.hypot((robotPose.getX() - speakerPose.getX()), (robotPose.getY() - speakerPose.getY()));
-        return speakerDistance;
-      }
+    if (DriverStation.getAlliance().isPresent()) {
+      Pose2d speakerPose =
+          DriverStation.getAlliance().get() == DriverStation.Alliance.Blue
+              ? Constants.FiledConstants.BLUE_SPEAKER_POSE
+              : Constants.FiledConstants.RED_SPEAKER_POSE;
+      double speakerDistance =
+          Math.hypot(
+              (robotPose.getX() - speakerPose.getX()), (robotPose.getY() - speakerPose.getY()));
+      return speakerDistance;
+    }
     return 0.0;
   }
-
-
 
   // to do make this part of the shooting process
   public Command setPositionCommand(Rotation2d position) {
