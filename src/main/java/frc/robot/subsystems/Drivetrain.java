@@ -22,14 +22,22 @@ import edu.wpi.first.units.*;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import monologue.Annotations.Log;
+import monologue.Logged;
 
 import static edu.wpi.first.units.Units.*;
 
-public class Drivetrain extends SubsystemBase {
+public class Drivetrain extends SubsystemBase implements Logged {
     static boolean isReal;
     SwerveModule[] swerveModules;
     Pigeon2 gyro;
+    Rotation2d simYaw;
     SwerveDrivePoseEstimator odometry;
+
+    @Log
+    SwerveModuleState[] stateSetpoint;
+    @Log
+    SwerveModuleState[] stateReal;
 
     public PIDController xController;
     public PIDController yController;
@@ -56,12 +64,13 @@ public class Drivetrain extends SubsystemBase {
                                 DrivetrainConstants.DeviceIDs.BACK_RIGHT_TURN,3),
               };
 
-        gyro = new Pigeon2(Constants.RobotConstants.GYRO_ID);
+        if (isReal) gyro = new Pigeon2(Constants.RobotConstants.GYRO_ID);
+        simYaw = Rotation2d.fromRotations(0);
 
         odometry =
                 new SwerveDrivePoseEstimator(
                         DrivetrainConstants.SWERVE_KINEMATICS,
-                        gyro.getRotation2d(),
+                        isReal ? gyro.getRotation2d() : simYaw,
                         getModulePositions(),
                         new Pose2d());
 
@@ -71,9 +80,9 @@ public class Drivetrain extends SubsystemBase {
 //                     .updateWithTime(
 //                     //TODO: GET CURRENT TIME IN SECONDS
 //                     0.0,
-//                     gyro.getRotation2d(),
+//                     isReal ? gyro.getRotation2d() : simYaw,
 //                     getModulePositions())
-                        .update(gyro.getRotation2d(), getModulePositions())
+                        .update(isReal ? gyro.getRotation2d() : simYaw, getModulePositions())
             )) {
 //            odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz //TODO: FOR THE BETTER ODOMETRY
             odometryUpdater.startPeriodic(1.0 / 50); // Run at 200hz //TODO: FOR 50hz ODOMETRY (i think its default)
@@ -98,11 +107,29 @@ public class Drivetrain extends SubsystemBase {
         SmartDashboard.putData("X Controller", xController);
         SmartDashboard.putData("Y Controller", yController);
         SmartDashboard.putData("Theta Controller", thetaController);
+
+        stateReal = new SwerveModuleState[]{
+                swerveModules[0].getState(),
+                swerveModules[1].getState(),
+                swerveModules[2].getState(),
+                swerveModules[3].getState()
+        };
+
+        stateSetpoint = new SwerveModuleState[] {
+            new SwerveModuleState(
+                    swerveModules[0].inputs.driveVelocity, swerveModules[0].inputs.turnPosition),
+                    new SwerveModuleState(
+                            swerveModules[1].inputs.driveVelocity, swerveModules[0].inputs.turnPosition),
+                    new SwerveModuleState(
+                            swerveModules[2].inputs.driveVelocity, swerveModules[0].inputs.turnPosition),
+                    new SwerveModuleState(
+                            swerveModules[3].inputs.driveVelocity, swerveModules[0].inputs.turnPosition)
+        };
     }
 
     @Override
     public void periodic() {
-        odometry.update(gyro.getRotation2d(), getModulePositions());
+        odometry.update(isReal ? gyro.getRotation2d() : simYaw, getModulePositions());
 
         swerveModules[0].periodic();
         swerveModules[1].periodic();
@@ -117,6 +144,20 @@ public class Drivetrain extends SubsystemBase {
             statesRadians[i * 2] = swerveModules[i].getAngle().getRadians();
             statesRadians[(i * 2) + 1] = swerveModules[i].getVelocityMetersPerSec();
         }
+
+        stateReal[0] = swerveModules[0].getState();
+        stateReal[1] = swerveModules[1].getState();
+        stateReal[2] = swerveModules[2].getState();
+        stateReal[3] = swerveModules[3].getState();
+
+        stateSetpoint[0] = new SwerveModuleState(
+                swerveModules[0].inputs.driveVelocity, swerveModules[0].inputs.turnPosition);
+        stateSetpoint[1] = new SwerveModuleState(
+                swerveModules[1].inputs.driveVelocity, swerveModules[0].inputs.turnPosition);
+        stateSetpoint[2] = new SwerveModuleState(
+                swerveModules[2].inputs.driveVelocity, swerveModules[0].inputs.turnPosition);
+        stateSetpoint[3] = new SwerveModuleState(
+                swerveModules[3].inputs.driveVelocity, swerveModules[0].inputs.turnPosition);
     }
 
     public void addVisionMeasurement(Pose2d measurement, double timestamp) {
@@ -124,7 +165,8 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void zeroGyro() {
-        gyro.reset();
+        if (isReal) gyro.reset();
+        else simYaw = Rotation2d.fromRotations(0);
     }
 
     public void driveRobotRelative(ChassisSpeeds speeds) {
@@ -177,7 +219,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public Rotation2d getGyroAngle() {
-        return gyro.getRotation2d();
+        return isReal ? gyro.getRotation2d() : simYaw;
     }
 
     public SwerveModuleState[] getModuleStates() {
@@ -203,7 +245,7 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public void resetOdometry(Pose2d pose) {
-        odometry.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
+        odometry.resetPosition(isReal ? gyro.getRotation2d() : simYaw, getModulePositions(), pose);
     }
 
     public void setModuleStates(SwerveModuleState[] states) {

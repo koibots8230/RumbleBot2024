@@ -29,16 +29,17 @@ public class DriveCommands extends Command {
 
     @Override
     public void execute() {
-        this.drivetrain.set(new ChassisSpeeds(
-                Constants.DriveConstants.MAX_VELOCITY.times(forward.getAsDouble()),
-                Constants.DriveConstants.MAX_VELOCITY.times(sideways.getAsDouble()),
-                Constants.DriveConstants.MAX_ROTATION.times(rotation.getAsDouble())
-        ));
+//        this.drivetrain.set(new ChassisSpeeds(
+//                Constants.DriveConstants.MAX_VELOCITY.times(forward.getAsDouble()),
+//                Constants.DriveConstants.MAX_VELOCITY.times(sideways.getAsDouble()),
+//                Constants.DriveConstants.MAX_ROTATION.times(rotation.getAsDouble())
+//        ));
     }
 
     @Override
     public boolean isFinished() {
-        return false;
+//        return false;
+        return true;
     }
 
     @Override
