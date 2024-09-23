@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import frc.robot.Constants;
 import frc.robot.Constants.DrivetrainConstants;
 import frc.robot.Constants.RobotConstants;
-import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -90,19 +89,19 @@ public class Drivetrain extends SubsystemBase implements Logged {
 
         xController =
                 new PIDController(
-                        DrivetrainConstants.VX_CONTROLLER.kP,
-                        DrivetrainConstants.VX_CONTROLLER.kI,
-                        DrivetrainConstants.VX_CONTROLLER.kD);
+                        isReal ? DrivetrainConstants.VX_CONTROLLER_REAL.kp : DrivetrainConstants.VX_CONTROLLER_SIM.kp,
+                        isReal ? DrivetrainConstants.VX_CONTROLLER_REAL.ki : DrivetrainConstants.VX_CONTROLLER_SIM.ki,
+                        isReal ? DrivetrainConstants.VX_CONTROLLER_REAL.kd : DrivetrainConstants.VX_CONTROLLER_SIM.kd);
         yController =
                 new PIDController(
-                        DrivetrainConstants.VY_CONTROLLER.kP,
-                        DrivetrainConstants.VY_CONTROLLER.kI,
-                        DrivetrainConstants.VY_CONTROLLER.kD);
+                        isReal ? DrivetrainConstants.VY_CONTROLLER_REAL.kp : DrivetrainConstants.VY_CONTROLLER_SIM.kp,
+                        isReal ? DrivetrainConstants.VY_CONTROLLER_REAL.ki : DrivetrainConstants.VY_CONTROLLER_SIM.ki,
+                        isReal ? DrivetrainConstants.VY_CONTROLLER_REAL.kd : DrivetrainConstants.VY_CONTROLLER_SIM.kd);
         thetaController =
                 new PIDController(
-                        DrivetrainConstants.VTHETA_CONTROLLER.kP,
-                        DrivetrainConstants.VTHETA_CONTROLLER.kI,
-                        DrivetrainConstants.VTHETA_CONTROLLER.kD);
+                        isReal ? DrivetrainConstants.VTHETA_CONTROLLER_REAL.kp : DrivetrainConstants.VTHETA_CONTROLLER_SIM.kp,
+                        isReal ? DrivetrainConstants.VTHETA_CONTROLLER_REAL.ki : DrivetrainConstants.VTHETA_CONTROLLER_SIM.ki,
+                        isReal ? DrivetrainConstants.VTHETA_CONTROLLER_REAL.kd : DrivetrainConstants.VTHETA_CONTROLLER_SIM.kd);
 
         SmartDashboard.putData("X Controller", xController);
         SmartDashboard.putData("Y Controller", yController);
@@ -321,19 +320,19 @@ public class Drivetrain extends SubsystemBase implements Logged {
 
             driveFeedforward =
                     new SimpleMotorFeedforward(
-                            DrivetrainConstants.DRIVE_FEEDFORWARD_CONSTANTS.ks,
-                            DrivetrainConstants.DRIVE_FEEDFORWARD_CONSTANTS.kv,
-                            DrivetrainConstants.DRIVE_FEEDFORWARD_CONSTANTS.ka);
+                            isReal ? DrivetrainConstants.DRIVE_FEEDFORWARD_REAL.ks : DrivetrainConstants.DRIVE_FEEDFORWARD_SIM.ks,
+                            isReal ? DrivetrainConstants.DRIVE_FEEDFORWARD_REAL.kv : DrivetrainConstants.DRIVE_FEEDFORWARD_SIM.kv,
+                            isReal ? DrivetrainConstants.DRIVE_FEEDFORWARD_REAL.ka : DrivetrainConstants.DRIVE_FEEDFORWARD_SIM.ka);
             driveFeedback =
                     new PIDController(
-                            DrivetrainConstants.DRIVE_PID_CONSTANTS.kP,
-                            DrivetrainConstants.DRIVE_PID_CONSTANTS.kI,
-                            DrivetrainConstants.DRIVE_PID_CONSTANTS.kD);
+                            isReal ? DrivetrainConstants.DRIVE_PID_CONSTANTS_REAL.kp : DrivetrainConstants.DRIVE_PID_CONSTANTS_SIM.kp,
+                            isReal ? DrivetrainConstants.DRIVE_PID_CONSTANTS_REAL.ki : DrivetrainConstants.DRIVE_PID_CONSTANTS_SIM.ki,
+                            isReal ? DrivetrainConstants.DRIVE_PID_CONSTANTS_REAL.kd : DrivetrainConstants.DRIVE_PID_CONSTANTS_SIM.kd);
             turnFeedback =
                     new PIDController(
-                            DrivetrainConstants.TURN_PID_CONSTANTS.kP,
-                            DrivetrainConstants.TURN_PID_CONSTANTS.kI,
-                            DrivetrainConstants.TURN_PID_CONSTANTS.kD);
+                            isReal ? DrivetrainConstants.TURN_PID_CONSTANTS_REAL.kp : DrivetrainConstants.TURN_PID_CONSTANTS_SIM.kp,
+                            isReal ? DrivetrainConstants.TURN_PID_CONSTANTS_REAL.ki : DrivetrainConstants.TURN_PID_CONSTANTS_SIM.ki,
+                            isReal ? DrivetrainConstants.TURN_PID_CONSTANTS_REAL.kd : DrivetrainConstants.TURN_PID_CONSTANTS_SIM.kd);
 
             turnFeedback.enableContinuousInput(0, 2 * Math.PI);
 
@@ -424,7 +423,6 @@ public class Drivetrain extends SubsystemBase implements Logged {
             }
         }
 
-        /** Runs the module with the specified setpoint state. Returns the optimized state. */
         public SwerveModuleState setState(SwerveModuleState state) {
 
             // if (MathUtil.inputModulus(getAngle().minus(state.angle).getRadians(), -Math.PI, Math.PI)
@@ -451,7 +449,6 @@ public class Drivetrain extends SubsystemBase implements Logged {
             setTurnVoltage(turnVolts);
         }
 
-        /** Disables all outputs to motors. */
         public void stop() {
             setTurnVoltage(Volts.of(0));
             setDriveVoltage(Volts.of(0));
@@ -461,7 +458,6 @@ public class Drivetrain extends SubsystemBase implements Logged {
             speedSetpoint = 0.0;
         }
 
-        /** Returns the current turn angle of the module. */
         public Rotation2d getAngle() {
             return inputs.turnPosition;
         }
@@ -508,10 +504,9 @@ public class Drivetrain extends SubsystemBase implements Logged {
                 turnSim.update(LOOP_PERIOD_SECS);
 
                 inputs.drivePosition =
-                        RobotConstants.DRIVE_WHEELS.radius.times(driveSim.getAngularPositionRad());
+                        RobotConstants.DRIVE_WHEELS_RADIUS.times(driveSim.getAngularPositionRad());
                 inputs.driveVelocity =
-                        RobotConstants.DRIVE_WHEELS
-                                .radius
+                        RobotConstants.DRIVE_WHEELS_RADIUS
                                 .times(driveSim.getAngularVelocityRadPerSec())
                                 .per(Second);
                 inputs.driveAppliedVoltage = driveAppliedVolts;
@@ -542,76 +537,6 @@ public class Drivetrain extends SubsystemBase implements Logged {
                 turnAppliedVolts = Volts.of(MathUtil.clamp(voltage.in(Volts), -12.0, 12.0));
                 turnSim.setInputVoltage(turnAppliedVolts.in(Volts));
             }
-        }
-    }
-
-    public static class PIDConstantsIO extends PIDConstants {
-        public PIDConstantsIO(
-                double realKp, double realKi, double realKd, double simKp, double simKi, double simKd) {
-            super(
-                    isReal ? realKp : simKp,
-                    isReal ? realKi : simKi,
-                    isReal ? realKd : simKd);
-        }
-    }
-
-    public static class FeedforwardConstantsIO {
-        public double ks = 0;
-        public double kv = 0;
-        public double ka = 0;
-        public double kg = 0;
-
-        public FeedforwardConstantsIO() {}
-
-        public FeedforwardConstantsIO(double realKs, double realKv, double simKs, double simKv) {
-            if (isReal) {
-                this.ks = realKs;
-                this.kv = realKv;
-            } else {
-                this.ks = simKs;
-                this.kv = simKv;
-            }
-        }
-
-        public FeedforwardConstantsIO(
-                double realKs, double realKv, double realKa, double simKs, double simKv, double simKa) {
-            if (isReal) {
-                this.ks = realKs;
-                this.kv = realKv;
-                this.ka = realKa;
-            } else {
-                this.ks = simKs;
-                this.kv = simKv;
-                this.ka = simKa;
-            }
-        }
-    }
-
-    public static class Wheel {
-        public Measure<Distance> circumference;
-        public Measure<Distance> radius;
-
-        public Wheel(Measure<Distance> radius) {
-            this.radius = radius;
-            circumference = radius.times(2 * Math.PI);
-        }
-    }
-
-    public static class MotorConstantsIO {
-        public final boolean inverted;
-        public final int currentLimit;
-        public final CANSparkBase.IdleMode idleMode;
-
-        public MotorConstantsIO(boolean inverted, int currentLimit, CANSparkBase.IdleMode idleMode) {
-            this.inverted = inverted;
-            this.currentLimit = currentLimit;
-            this.idleMode = idleMode;
-        }
-
-        public MotorConstantsIO(boolean inverted, int currentLimit) {
-            this.inverted = inverted;
-            this.currentLimit = currentLimit;
-            this.idleMode = CANSparkBase.IdleMode.kCoast;
         }
     }
 }

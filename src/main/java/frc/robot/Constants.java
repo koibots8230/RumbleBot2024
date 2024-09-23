@@ -2,10 +2,6 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import frc.robot.subsystems.Drivetrain.PIDConstantsIO;
-import frc.robot.subsystems.Drivetrain.FeedforwardConstantsIO;
-import frc.robot.subsystems.Drivetrain.Wheel;
-import frc.robot.subsystems.Drivetrain.MotorConstantsIO;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -36,13 +32,9 @@ public class Constants {
     public static final double DRIVE_GEAR_RATIO = (45.0 * 22) / (DRIVING_PINION_TEETH * 15);
     public static final double TURN_GEAR_RATIO = (62.0 / 14) * 12;
 
-    public static final Wheel DRIVE_WHEELS = new Wheel(Inches.of(1.5));
+    public static final Measure<Distance> DRIVE_WHEELS_RADIUS = Inches.of(1.5);
 
     public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
-  }
-
-  public static class DriveConstants {
-
   }
 
   public static class IndexerConstants {
@@ -172,17 +164,14 @@ public class Constants {
 
   public static class DrivetrainConstants {
     public static final double DRIVE_TURN_KS = 0.0;
-    public static final PIDConstantsIO TURN_PID_CONSTANTS =
-            new PIDConstantsIO(2.078, 0, 0, 35, 0, 0);
-    public static final PIDConstantsIO DRIVE_PID_CONSTANTS =
-            new PIDConstantsIO(5.5208e-10, 0, 0, 40, 0, 0);
-    public static final FeedforwardConstantsIO DRIVE_FEEDFORWARD_CONSTANTS =
-            new FeedforwardConstantsIO(0.11386, 2.6819, 0.16507, 0, 2.65, 0);
-
-    public static final double DEADBAND = 0.025;
-
-    public static final PIDConstantsIO ANGLE_ALIGNMENT_PID_CONSTANTS =
-            new PIDConstantsIO(0.925, 0, 0, 3.5, 0, 0);
+    public static final PIDGains TURN_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(2.078).build();
+    public static final PIDGains TURN_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(35).build();
+    public static final PIDGains DRIVE_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(5.5208e-10).build();
+    public static final PIDGains DRIVE_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(40).build();
+    public static final FeedforwardGains DRIVE_FEEDFORWARD_REAL =
+            new FeedforwardGains.Builder().ks(0.11386).kv(2.6819).ka(0.16507).build();
+    public static final FeedforwardGains DRIVE_FEEDFORWARD_SIM =
+            new FeedforwardGains.Builder().kv(2.65).build();
 
     public static final SwerveDriveKinematics SWERVE_KINEMATICS =
             new SwerveDriveKinematics(
@@ -199,21 +188,22 @@ public class Constants {
                             RobotConstants.LENGTH.divide(-2),
                             RobotConstants.WIDTH.divide(-2)) // Back Right
             );
-    public static final PIDConstantsIO VX_CONTROLLER = new PIDConstantsIO(1.5, 0, 0, 0, 0, 0);
-    public static final PIDConstantsIO VY_CONTROLLER = new PIDConstantsIO(0, 0, 0, 0, 0, 0);
-    public static final PIDConstantsIO VTHETA_CONTROLLER = new PIDConstantsIO(0, 0, 0, 0, 0, 0);
+    public static final PIDGains VX_CONTROLLER_REAL = new PIDGains.Builder().kp(1.5).build();
+    public static final PIDGains VX_CONTROLLER_SIM = new PIDGains.Builder().build();
+    public static final PIDGains VY_CONTROLLER_REAL = new PIDGains.Builder().build();
+    public static final PIDGains VY_CONTROLLER_SIM = new PIDGains.Builder().build();
+    public static final PIDGains VTHETA_CONTROLLER_REAL = new PIDGains.Builder().build();
+    public static final PIDGains VTHETA_CONTROLLER_SIM = new PIDGains.Builder().build();
 
-    public static final MotorConstantsIO DRIVE =
-            new MotorConstantsIO(false, 60, IdleMode.kBrake);
-    public static final MotorConstantsIO TURN =
-            new MotorConstantsIO(false, 30, IdleMode.kBrake);
+    public static final MotorConfig DRIVE =
+        new MotorConfig.Builder().inverted(false).currentLimit(60).idleMode(IdleMode.kBrake).build();
+    public static final MotorConfig TURN =
+            new MotorConfig.Builder().inverted(false).currentLimit(30).idleMode(IdleMode.kBrake).build();
 
     public static final Measure<Time> CAN_TIMEOUT =
             Milliseconds.of(
                     20); // Default value, but if CAN utilization gets too high, pop it to 0, or
     // bump it up+
-
-    public static final int ENCODER_SAMPLES_PER_AVERAGE = 100;
 
     public static final Measure<Angle> TURNING_ENCODER_POSITION_FACTOR =
             Radians.of(2 * Math.PI);
@@ -224,13 +214,11 @@ public class Constants {
             Inches.of((1.5 * 2 * Math.PI) / RobotConstants.DRIVE_GEAR_RATIO);
     public static final Measure<Velocity<Distance>> DRIVING_ENCODER_VELOCITY_FACTOR =
             MetersPerSecond.of(
-                    ((RobotConstants.DRIVE_WHEELS.radius.in(Meters) * 2 * Math.PI)
+                    ((RobotConstants.DRIVE_WHEELS_RADIUS.in(Meters) * 2 * Math.PI)
                             / RobotConstants.DRIVE_GEAR_RATIO)
                             / 60.0);
 
     public static final int DRIVE_ENCODER_SAMPLING_DEPTH = 2;
-
-    public static final double SHOOTER_ALLOWED_ERROR = 0.1;
 
     public static class DeviceIDs { //TODO: ACTUALLY SET CANIDS
       public static final int FRONT_LEFT_DRIVE = 36;
