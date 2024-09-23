@@ -2,10 +2,15 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import frc.robot.subsystems.Drivetrain.PIDConstantsIO;
+import frc.robot.subsystems.Drivetrain.FeedforwardConstantsIO;
+import frc.robot.subsystems.Drivetrain.Wheel;
+import frc.robot.subsystems.Drivetrain.MotorConstantsIO;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.units.*;
-import frc.lib.motor.Motor;
 import frc.lib.util.FeedforwardGains;
 import frc.lib.util.MotorConfig;
 import frc.lib.util.PIDGains;
@@ -17,11 +22,27 @@ public class Constants {
     public static final Measure<Distance> WHEEL_OFFSET = Inches.of(1.754419);
     public static final double DRIVE_POSITION_FACTOR = 1.0;
     public static final int GYRO_ID = 24;
+
+    public static final Measure<Velocity<Distance>> MAX_LINEAR_SPEED =
+            MetersPerSecond.of(4.125);
+    public static final Measure<Velocity<Angle>> MAX_ANGULAR_VELOCITY =
+            RadiansPerSecond.of(2 * Math.PI);
+    public static final Measure<Velocity<Velocity<Distance>>> MAX_LINEAR_ACCELERATION =
+            MetersPerSecondPerSecond.of(4);
+    public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCELERATION =
+            RadiansPerSecond.of(4 * Math.PI).per(Second);
+
+    private static final int DRIVING_PINION_TEETH = 13;
+    public static final double DRIVE_GEAR_RATIO = (45.0 * 22) / (DRIVING_PINION_TEETH * 15);
+    public static final double TURN_GEAR_RATIO = (62.0 / 14) * 12;
+
+    public static final Wheel DRIVE_WHEELS = new Wheel(Inches.of(1.5));
+
+    public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
   }
 
   public static class DriveConstants {
-    public static final Measure<Velocity<Distance>> MAX_VELOCITY = MetersPerSecond.of(3);
-    public static final Measure<Velocity<Angle>> MAX_ROTATION = RPM.of(60);
+
   }
 
   public static class IndexerConstants {
@@ -150,56 +171,77 @@ public class Constants {
   }
 
   public static class DrivetrainConstants {
-    private static final double DRIVE_P = 1.0;
-    private static final double DRIVE_I = 0.0;
-    private static final double DRIVE_D = 0.0;
-    private static final double DRIVE_FF = 1.0; // Feedforward
-    private static final double DRIVE_VF = 1.0; // Velocity Factor
-    private static final double DRIVE_PF = 1.0; // Position Factor
-    private static final Measure<Current> DRIVE_CL = Amps.of(40.0); // Current Limit
-    private static final Motor.IdleMode DRIVE_IM = Motor.IdleMode.BREAK;
+    public static final double DRIVE_TURN_KS = 0.0;
+    public static final PIDConstantsIO TURN_PID_CONSTANTS =
+            new PIDConstantsIO(2.078, 0, 0, 35, 0, 0);
+    public static final PIDConstantsIO DRIVE_PID_CONSTANTS =
+            new PIDConstantsIO(5.5208e-10, 0, 0, 40, 0, 0);
+    public static final FeedforwardConstantsIO DRIVE_FEEDFORWARD_CONSTANTS =
+            new FeedforwardConstantsIO(0.11386, 2.6819, 0.16507, 0, 2.65, 0);
 
-    private static final double TURN_P = 1.0;
-    private static final double TURN_I = 0.0;
-    private static final double TURN_D = 0.0;
-    private static final double TURN_FF = 1.0; // Feedforward
-    private static final double TURN_VF = 1.0; // Velocity Factor
-    private static final double TURN_PF = 1.0; // Position Factor
-    private static final Measure<Current> TURN_CL = Amps.of(30.0); // Current Limit
-    private static final Motor.IdleMode TURN_IM = Motor.IdleMode.BREAK;
+    public static final double DEADBAND = 0.025;
 
-    public static final Motor.MotorDefinition FRONT_LEFT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition FRONT_LEFT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
-    public static final Motor.MotorDefinition FRONT_RIGHT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition FRONT_RIGHT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
-    public static final Motor.MotorDefinition BACK_LEFT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition BACK_LEFT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
-    public static final Motor.MotorDefinition BACK_RIGHT_DRIVE = new Motor.MotorDefinition(
-            30, DRIVE_P, DRIVE_I, DRIVE_D, DRIVE_FF, DRIVE_VF, DRIVE_PF,
-            false, false, DRIVE_CL, DRIVE_IM
-    );
-    public static final Motor.MotorDefinition BACK_RIGHT_TURN = new Motor.MotorDefinition(
-            30, TURN_P, TURN_I, TURN_D, TURN_FF, TURN_VF, TURN_PF,
-            false, false, TURN_CL, TURN_IM
-    );
+    public static final PIDConstantsIO ANGLE_ALIGNMENT_PID_CONSTANTS =
+            new PIDConstantsIO(0.925, 0, 0, 3.5, 0, 0);
+
+    public static final SwerveDriveKinematics SWERVE_KINEMATICS =
+            new SwerveDriveKinematics(
+                    new Translation2d(
+                            RobotConstants.LENGTH.divide(2),
+                            RobotConstants.WIDTH.divide(2)), // Front Left
+                    new Translation2d(
+                            RobotConstants.LENGTH.divide(2),
+                            RobotConstants.WIDTH.divide(-2)), // Front Right
+                    new Translation2d(
+                            RobotConstants.LENGTH.divide(-2),
+                            RobotConstants.WIDTH.divide(2)), // Back Left
+                    new Translation2d(
+                            RobotConstants.LENGTH.divide(-2),
+                            RobotConstants.WIDTH.divide(-2)) // Back Right
+            );
+    public static final PIDConstantsIO VX_CONTROLLER = new PIDConstantsIO(1.5, 0, 0, 0, 0, 0);
+    public static final PIDConstantsIO VY_CONTROLLER = new PIDConstantsIO(0, 0, 0, 0, 0, 0);
+    public static final PIDConstantsIO VTHETA_CONTROLLER = new PIDConstantsIO(0, 0, 0, 0, 0, 0);
+
+    public static final MotorConstantsIO DRIVE =
+            new MotorConstantsIO(false, 60, IdleMode.kBrake);
+    public static final MotorConstantsIO TURN =
+            new MotorConstantsIO(false, 30, IdleMode.kBrake);
+
+    public static final Measure<Time> CAN_TIMEOUT =
+            Milliseconds.of(
+                    20); // Default value, but if CAN utilization gets too high, pop it to 0, or
+    // bump it up+
+
+    public static final int ENCODER_SAMPLES_PER_AVERAGE = 100;
+
+    public static final Measure<Angle> TURNING_ENCODER_POSITION_FACTOR =
+            Radians.of(2 * Math.PI);
+    public static final Measure<Velocity<Angle>> TURNING_ENCODER_VELOCITY_FACTOR =
+            RadiansPerSecond.of((2 * Math.PI) / 60.0);
+
+    public static final Measure<Distance> DRIVING_ENCODER_POSITION_FACTOR =
+            Inches.of((1.5 * 2 * Math.PI) / RobotConstants.DRIVE_GEAR_RATIO);
+    public static final Measure<Velocity<Distance>> DRIVING_ENCODER_VELOCITY_FACTOR =
+            MetersPerSecond.of(
+                    ((RobotConstants.DRIVE_WHEELS.radius.in(Meters) * 2 * Math.PI)
+                            / RobotConstants.DRIVE_GEAR_RATIO)
+                            / 60.0);
+
+    public static final int DRIVE_ENCODER_SAMPLING_DEPTH = 2;
+
+    public static final double SHOOTER_ALLOWED_ERROR = 0.1;
+
+    public static class DeviceIDs { //TODO: ACTUALLY SET CANIDS
+      public static final int FRONT_LEFT_DRIVE = 36;
+      public static final int FRONT_LEFT_TURN = 31;
+      public static final int FRONT_RIGHT_DRIVE = 37;
+      public static final int FRONT_RIGHT_TURN = 38;
+      public static final int BACK_LEFT_DRIVE = 34;
+      public static final int BACK_LEFT_TURN = 35;
+      public static final int BACK_RIGHT_DRIVE = 32;
+      public static final int BACK_RIGHT_TURN = 33;
+    }
   }
 
   public static class IntakeConstants {
