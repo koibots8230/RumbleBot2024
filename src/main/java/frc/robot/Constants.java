@@ -19,14 +19,13 @@ public class Constants {
     public static final double DRIVE_POSITION_FACTOR = 1.0;
     public static final int GYRO_ID = 24;
 
-    public static final Measure<Velocity<Distance>> MAX_LINEAR_SPEED =
-            MetersPerSecond.of(4.125);
+    public static final Measure<Velocity<Distance>> MAX_LINEAR_SPEED = MetersPerSecond.of(4.125);
     public static final Measure<Velocity<Angle>> MAX_ANGULAR_VELOCITY =
-            RadiansPerSecond.of(2 * Math.PI);
+        RadiansPerSecond.of(2 * Math.PI);
     public static final Measure<Velocity<Velocity<Distance>>> MAX_LINEAR_ACCELERATION =
-            MetersPerSecondPerSecond.of(4);
+        MetersPerSecondPerSecond.of(4);
     public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCELERATION =
-            RadiansPerSecond.of(4 * Math.PI).per(Second);
+        RadiansPerSecond.of(4 * Math.PI).per(Second);
 
     private static final int DRIVING_PINION_TEETH = 13;
     public static final double DRIVE_GEAR_RATIO = (45.0 * 22) / (DRIVING_PINION_TEETH * 15);
@@ -122,7 +121,6 @@ public class Constants {
 
     public static final double a = 0.0;
     public static final double b = 0.0;
-
   }
 
   public static class ShooterConstants {
@@ -166,27 +164,24 @@ public class Constants {
     public static final double DRIVE_TURN_KS = 0.0;
     public static final PIDGains TURN_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(2.078).build();
     public static final PIDGains TURN_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(35).build();
-    public static final PIDGains DRIVE_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(5.5208e-10).build();
+    public static final PIDGains DRIVE_PID_CONSTANTS_REAL =
+        new PIDGains.Builder().kp(5.5208e-10).build();
     public static final PIDGains DRIVE_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(40).build();
     public static final FeedforwardGains DRIVE_FEEDFORWARD_REAL =
-            new FeedforwardGains.Builder().ks(0.11386).kv(2.6819).ka(0.16507).build();
+        new FeedforwardGains.Builder().ks(0.11386).kv(2.6819).ka(0.16507).build();
     public static final FeedforwardGains DRIVE_FEEDFORWARD_SIM =
-            new FeedforwardGains.Builder().kv(2.65).build();
+        new FeedforwardGains.Builder().kv(2.65).build();
 
     public static final SwerveDriveKinematics SWERVE_KINEMATICS =
-            new SwerveDriveKinematics(
-                    new Translation2d(
-                            RobotConstants.LENGTH.divide(2),
-                            RobotConstants.WIDTH.divide(2)), // Front Left
-                    new Translation2d(
-                            RobotConstants.LENGTH.divide(2),
-                            RobotConstants.WIDTH.divide(-2)), // Front Right
-                    new Translation2d(
-                            RobotConstants.LENGTH.divide(-2),
-                            RobotConstants.WIDTH.divide(2)), // Back Left
-                    new Translation2d(
-                            RobotConstants.LENGTH.divide(-2),
-                            RobotConstants.WIDTH.divide(-2)) // Back Right
+        new SwerveDriveKinematics(
+            new Translation2d(
+                RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(2)), // Front Left
+            new Translation2d(
+                RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(-2)), // Front Right
+            new Translation2d(
+                RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(2)), // Back Left
+            new Translation2d(
+                RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(-2)) // Back Right
             );
     public static final PIDGains VX_CONTROLLER_REAL = new PIDGains.Builder().kp(1.5).build();
     public static final PIDGains VX_CONTROLLER_SIM = new PIDGains.Builder().build();
@@ -196,31 +191,37 @@ public class Constants {
     public static final PIDGains VTHETA_CONTROLLER_SIM = new PIDGains.Builder().build();
 
     public static final MotorConfig DRIVE =
-        new MotorConfig.Builder().inverted(false).currentLimit(60).idleMode(IdleMode.kBrake).build();
+        new MotorConfig.Builder()
+            .inverted(false)
+            .currentLimit(60)
+            .idleMode(IdleMode.kBrake)
+            .build();
     public static final MotorConfig TURN =
-            new MotorConfig.Builder().inverted(false).currentLimit(30).idleMode(IdleMode.kBrake).build();
+        new MotorConfig.Builder()
+            .inverted(false)
+            .currentLimit(30)
+            .idleMode(IdleMode.kBrake)
+            .build();
 
     public static final Measure<Time> CAN_TIMEOUT =
-            Milliseconds.of(
-                    20); // Default value, but if CAN utilization gets too high, pop it to 0, or
+        Milliseconds.of(20); // Default value, but if CAN utilization gets too high, pop it to 0, or
     // bump it up+
 
-    public static final Measure<Angle> TURNING_ENCODER_POSITION_FACTOR =
-            Radians.of(2 * Math.PI);
+    public static final Measure<Angle> TURNING_ENCODER_POSITION_FACTOR = Radians.of(2 * Math.PI);
     public static final Measure<Velocity<Angle>> TURNING_ENCODER_VELOCITY_FACTOR =
-            RadiansPerSecond.of((2 * Math.PI) / 60.0);
+        RadiansPerSecond.of((2 * Math.PI) / 60.0);
 
     public static final Measure<Distance> DRIVING_ENCODER_POSITION_FACTOR =
-            Inches.of((1.5 * 2 * Math.PI) / RobotConstants.DRIVE_GEAR_RATIO);
+        Inches.of((1.5 * 2 * Math.PI) / RobotConstants.DRIVE_GEAR_RATIO);
     public static final Measure<Velocity<Distance>> DRIVING_ENCODER_VELOCITY_FACTOR =
-            MetersPerSecond.of(
-                    ((RobotConstants.DRIVE_WHEELS_RADIUS.in(Meters) * 2 * Math.PI)
-                            / RobotConstants.DRIVE_GEAR_RATIO)
-                            / 60.0);
+        MetersPerSecond.of(
+            ((RobotConstants.DRIVE_WHEELS_RADIUS.in(Meters) * 2 * Math.PI)
+                    / RobotConstants.DRIVE_GEAR_RATIO)
+                / 60.0);
 
     public static final int DRIVE_ENCODER_SAMPLING_DEPTH = 2;
 
-    public static class DeviceIDs { //TODO: ACTUALLY SET CANIDS
+    public static class DeviceIDs { // TODO: ACTUALLY SET CANIDS
       public static final int FRONT_LEFT_DRIVE = 36;
       public static final int FRONT_LEFT_TURN = 31;
       public static final int FRONT_RIGHT_DRIVE = 37;
