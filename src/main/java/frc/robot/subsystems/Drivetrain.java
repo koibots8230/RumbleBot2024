@@ -30,7 +30,6 @@ public class Drivetrain extends SubsystemBase {
     SwerveModule[] swerveModules;
     Pigeon2 gyro;
     SwerveDrivePoseEstimator odometry;
-    SwerveDriveKinematics kinematics;
 
     public PIDController xController;
     public PIDController yController;
@@ -43,25 +42,19 @@ public class Drivetrain extends SubsystemBase {
 
         swerveModules =
                 new SwerveModule[] { // FL-FR-BL-BR
-
-                //TODO SWERVE MOD. CODE
-//                        new SwerveModule(
-//                                new SwerveModuleIOSparkMax(
-//                                        DeviceIDs.FRONT_LEFT_DRIVE, DeviceIDs.FRONT_LEFT_TURN),
-//                                0),
-//                        new SwerveModule(
-//                                new SwerveModuleIOSparkMax(
-//                                        DeviceIDs.FRONT_RIGHT_DRIVE, DeviceIDs.FRONT_RIGHT_TURN),
-//                                1),
-//                        new SwerveModule(
-//                                new SwerveModuleIOSparkMax(
-//                                        DeviceIDs.BACK_LEFT_DRIVE, DeviceIDs.BACK_LEFT_TURN),
-//                                2),
-//                        new SwerveModule(
-//                                new SwerveModuleIOSparkMax(
-//                                        DeviceIDs.BACK_RIGHT_DRIVE, DeviceIDs.BACK_RIGHT_TURN),
-//                                3),
-                };
+                        new SwerveModule(
+                                DrivetrainConstants.DeviceIDs.FRONT_LEFT_DRIVE,
+                                DrivetrainConstants.DeviceIDs.FRONT_LEFT_TURN,0),
+                        new SwerveModule(
+                                DrivetrainConstants.DeviceIDs.FRONT_RIGHT_DRIVE,
+                                DrivetrainConstants.DeviceIDs.FRONT_RIGHT_TURN,1),
+                        new SwerveModule(
+                                DrivetrainConstants.DeviceIDs.BACK_LEFT_DRIVE,
+                                DrivetrainConstants.DeviceIDs.BACK_LEFT_TURN,2),
+                        new SwerveModule(
+                                DrivetrainConstants.DeviceIDs.BACK_RIGHT_DRIVE,
+                                DrivetrainConstants.DeviceIDs.BACK_RIGHT_TURN,3),
+              };
 
         gyro = new Pigeon2(Constants.RobotConstants.GYRO_ID);
 
@@ -73,13 +66,17 @@ public class Drivetrain extends SubsystemBase {
                         new Pose2d());
 
         try (Notifier odometryUpdater =
-                     new Notifier(
-                             () -> odometry.updateWithTime(
-                                     //TODO: GET CURRENT TIME IN SECONDS
-                                     0.0,
-                                     gyro.getRotation2d(),
-                                     getModulePositions()))) {
-            odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
+            new Notifier(
+                 () -> odometry
+//                     .updateWithTime(
+//                     //TODO: GET CURRENT TIME IN SECONDS
+//                     0.0,
+//                     gyro.getRotation2d(),
+//                     getModulePositions())
+                        .update(gyro.getRotation2d(), getModulePositions())
+            )) {
+//            odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz //TODO: FOR THE BETTER ODOMETRY
+            odometryUpdater.startPeriodic(1.0 / 50); // Run at 200hz //TODO: FOR 50hz ODOMETRY (i think its default)
         }
 
         xController =
@@ -264,7 +261,7 @@ public class Drivetrain extends SubsystemBase {
         private final AbsoluteEncoder turnEncoder;
         private Rotation2d chassisAngularOffset;
 
-        static class SwerveModuleInputs {
+        public static class SwerveModuleInputs {
             public Measure<Distance> drivePosition = Meters.of(0);
             public Measure<Velocity<Distance>> driveVelocity = MetersPerSecond.of(0);
             public Measure<Voltage> driveAppliedVoltage = Volts.of(0);
@@ -277,7 +274,7 @@ public class Drivetrain extends SubsystemBase {
             public double setpoint = 0;
         }
 
-        public SwerveModule(int index, int driveId, int turnId) {
+        public SwerveModule(int driveId, int turnId, int index) {
             this.index = index;
 
             driveFeedforward =
@@ -549,12 +546,12 @@ public class Drivetrain extends SubsystemBase {
     }
 
     public static class Wheel {
-        public Measure<Distance> circumfrence;
+        public Measure<Distance> circumference;
         public Measure<Distance> radius;
 
         public Wheel(Measure<Distance> radius) {
             this.radius = radius;
-            circumfrence = radius.times(2 * Math.PI);
+            circumference = radius.times(2 * Math.PI);
         }
     }
 
