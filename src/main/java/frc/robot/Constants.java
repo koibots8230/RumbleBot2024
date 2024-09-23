@@ -162,7 +162,8 @@ public class Constants {
 
   public static class DrivetrainConstants {
     public static final double DRIVE_TURN_KS = 0.0;
-    public static final PIDGains TURN_PID_CONSTANTS_REAL = new PIDGains.Builder().kp(2.078 / 20d).build();
+    public static final PIDGains TURN_PID_CONSTANTS_REAL =
+        new PIDGains.Builder().kp(2.078 / 20d).build();
     public static final PIDGains TURN_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(35).build();
     public static final PIDGains DRIVE_PID_CONSTANTS_REAL =
         new PIDGains.Builder().kp(5.5208e-10 / 20d).build();
@@ -174,14 +175,18 @@ public class Constants {
 
     public static final SwerveDriveKinematics SWERVE_KINEMATICS =
         new SwerveDriveKinematics(
-            new Translation2d(
-                RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(2)), // Front Left
-            new Translation2d(
-                RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(-2)), // Front Right
-            new Translation2d(
-                RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(2)), // Back Left
-            new Translation2d(
-                RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(-2)) // Back Right
+            new Translation2d( // FL
+                RobotConstants.LENGTH.divide(2).minus(RobotConstants.WHEEL_OFFSET),
+                RobotConstants.WIDTH.divide(2).minus(RobotConstants.WHEEL_OFFSET)),
+            new Translation2d( // FR
+                RobotConstants.LENGTH.divide(2).minus(RobotConstants.WHEEL_OFFSET),
+                RobotConstants.WIDTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET)),
+            new Translation2d( // BL
+                RobotConstants.LENGTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET),
+                RobotConstants.WIDTH.divide(2).minus(RobotConstants.WHEEL_OFFSET)),
+            new Translation2d( // BR
+                RobotConstants.LENGTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET),
+                RobotConstants.WIDTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET))
             );
     public static final PIDGains VX_CONTROLLER_REAL = new PIDGains.Builder().kp(1.5).build();
     public static final PIDGains VX_CONTROLLER_SIM = new PIDGains.Builder().build();
