@@ -8,6 +8,22 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
+import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.units.*;
+import edu.wpi.first.wpilibj.Notifier;
+import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
+import frc.robot.Constants.*;
+import monologue.Annotations.Log;
+import monologue.Logged;
 
 public class Drivetrain extends SubsystemBase implements Logged {
   static boolean isReal;
@@ -22,6 +38,7 @@ public class Drivetrain extends SubsystemBase implements Logged {
   public PIDController xController;
   public PIDController yController;
   public PIDController thetaController;
+  public PIDController turnToController;
 
   // private Field2d field = new Field2d();
 
@@ -107,10 +124,18 @@ public class Drivetrain extends SubsystemBase implements Logged {
             isReal
                 ? DrivetrainConstants.VTHETA_CONTROLLER_REAL.kd
                 : DrivetrainConstants.VTHETA_CONTROLLER_SIM.kd);
+    turnToController = new PIDController(
+            DrivetrainConstants.TURN_TO_CONTROLLER.kp,
+            DrivetrainConstants.TURN_TO_CONTROLLER.ki,
+            DrivetrainConstants.TURN_TO_CONTROLLER.kd
+    );
+    turnToController.enableContinuousInput(0, Math.PI * 2);
+    turnToController.setTolerance(DrivetrainConstants.TURN_TO_PRECISION.getRadians());
 
     SmartDashboard.putData("X Controller", xController);
     SmartDashboard.putData("Y Controller", yController);
     SmartDashboard.putData("Theta Controller", thetaController);
+    SmartDashboard.putData("Turn to Controller", turnToController);
 
     stateReal =
         new SwerveModuleState[] {
@@ -186,7 +211,7 @@ public class Drivetrain extends SubsystemBase implements Logged {
         DrivetrainConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        targetModuleStates, RobotConstants.MAX_LINEAR_SPEED);
+        targetModuleStates, Constants.RobotConstants.MAX_LINEAR_SPEED);
 
     if (speeds.vxMetersPerSecond == 0.0
         && speeds.vyMetersPerSecond == 0.0
@@ -208,7 +233,7 @@ public class Drivetrain extends SubsystemBase implements Logged {
         DrivetrainConstants.SWERVE_KINEMATICS.toSwerveModuleStates(speeds);
 
     SwerveDriveKinematics.desaturateWheelSpeeds(
-        targetModuleStates, RobotConstants.MAX_LINEAR_SPEED);
+        targetModuleStates, Constants.RobotConstants.MAX_LINEAR_SPEED);
 
     if (speeds.vxMetersPerSecond == 0.0
         && speeds.vyMetersPerSecond == 0.0
@@ -281,6 +306,11 @@ public class Drivetrain extends SubsystemBase implements Logged {
         });
   }
 
+  public boolean turnTo(Rotation2d angle) {
+    turnToController.calculate(gyro.getRotation2d().getRadians(), angle.getRadians());
+    return turnToController.atSetpoint();
+  }
+
   public Pose2d getEstimatedPose() {
     return odometry.getEstimatedPosition();
   }
@@ -299,9 +329,9 @@ public class Drivetrain extends SubsystemBase implements Logged {
     private static final double LOOP_PERIOD_SECS = 0.02;
 
     private final DCMotorSim driveSim =
-        new DCMotorSim(DCMotor.getNEO(1), RobotConstants.DRIVE_GEAR_RATIO, 0.025);
+        new DCMotorSim(DCMotor.getNEO(1), Constants.RobotConstants.DRIVE_GEAR_RATIO, 0.025);
     private final DCMotorSim turnSim =
-        new DCMotorSim(DCMotor.getNEO(1), RobotConstants.TURN_GEAR_RATIO, 0.004);
+        new DCMotorSim(DCMotor.getNEO(1), Constants.RobotConstants.TURN_GEAR_RATIO, 0.004);
 
     private Measure<Voltage> driveAppliedVolts = Volts.of(0);
     private Measure<Voltage> turnAppliedVolts = Volts.of(0);
