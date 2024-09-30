@@ -11,6 +11,7 @@ import edu.wpi.first.units.*;
 import frc.lib.util.FeedforwardGains;
 import frc.lib.util.MotorConfig;
 import frc.lib.util.PIDGains;
+import frc.lib.util.Wheel;
 
 public class Constants {
   public static class RobotConstants {
@@ -18,6 +19,8 @@ public class Constants {
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
 
     public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
+
+    public static final Measure<Time> CAN_TIMEOUT = Milliseconds.of(20);
 
     public static final double JOYSTICK_DEADBAND = 0.05;
   }
@@ -162,6 +165,9 @@ public class Constants {
 
     public static final Measure<Velocity<Angle>> MAX_ANGULAR_VELOCITY = RadiansPerSecond.of(2 * Math.PI);
 
+    public static final Measure<Velocity<Angle>> MAX_TURN_VELOCITY = RadiansPerSecond.of(2 * Math.PI);
+    public static final Measure<Velocity<Velocity<Angle>>> MAX_TURN_ACCELERATION = RadiansPerSecond.per(Second).of(Math.PI * 4);
+
     public static final SwerveDriveKinematics KINEMATICS = new SwerveDriveKinematics(
         new Translation2d[] {
             new Translation2d(RobotConstants.WIDTH.in(Meters) / 2.0, RobotConstants.LENGTH.in(Meters) / 2.0),
@@ -179,6 +185,32 @@ public class Constants {
 
     public static final MotorConfig DRIVE_MOTOR_CONFIG = new MotorConfig.Builder().currentLimit(60).build();
     public static final MotorConfig TURN_MOTOR_CONFIG = new MotorConfig.Builder().currentLimit(30).build();
+
+    public static final Rotation2d[] ANGLE_OFFSETS = new Rotation2d[] {
+        Rotation2d.fromRadians((3 * Math.PI) / 2),
+        Rotation2d.fromRadians(Math.PI),
+        Rotation2d.fromRadians(0),
+        Rotation2d.fromRadians(Math.PI / 2)
+    };
+
+    private static final int DRIVING_PINION_TEETH = 13;
+    public static final double DRIVE_GEAR_RATIO = (45.0 * 22) / (DRIVING_PINION_TEETH * 15);
+    public static final double TURN_GEAR_RATIO = (62.0 / 14) * 12;
+
+    public static final Wheel WHEELS = new Wheel(Inches.of(1.5));
+
+    public static final Measure<Angle> TURN_ENCODER_POSITION_FACTOR =
+                Radians.of(2 * Math.PI);
+        public static final Measure<Velocity<Angle>> TURN_ENCODER_VELOCITY_FACTOR =
+                RadiansPerSecond.of((2 * Math.PI) / 60.0);
+
+    public static final Measure<Distance> DRIVE_ENCODER_POSITION_FACTOR =
+                Inches.of((1.5 * 2 * Math.PI) / DRIVE_GEAR_RATIO);
+        public static final Measure<Velocity<Distance>> DRIVE_ENCODER_VELOCITY_FACTOR =
+                MetersPerSecond.of(
+                        ((WHEELS.radius.in(Meters) * 2 * Math.PI)
+                                        /DRIVE_GEAR_RATIO)
+                                / 60.0);
 
     public static final int FRONT_LEFT_DRIVE_ID = 36;
     public static final int FRONT_LEFT_TURN_ID = 31;
