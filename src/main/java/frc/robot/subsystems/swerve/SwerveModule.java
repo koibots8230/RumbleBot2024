@@ -11,6 +11,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import frc.robot.Constants.RobotConstants;
@@ -171,5 +172,9 @@ public class SwerveModule implements Logged {
 
   public SwerveModuleState getState() {
     return new SwerveModuleState(driveVelocity, turnPosition);
+  }
+
+  public SwerveModulePosition getPosition() {
+    return new SwerveModulePosition(drivePosition, turnPosition);
   }
 }

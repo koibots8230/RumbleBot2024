@@ -2,16 +2,25 @@ package frc.robot.subsystems.swerve;
 
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Seconds;
 
 import java.util.function.DoubleSupplier;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.Time;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -26,8 +35,12 @@ public class Swerve extends SubsystemBase implements Logged {
 
     private final Pigeon2 gyro;
 
+    private final SwerveDrivePoseEstimator odometry;
+
     @Log private double[] setpointStates;
     @Log private double[] measuredStates;
+
+    @Log Pose2d odometryPose;
 
     public Swerve(boolean isReal) {
         modules = new SwerveModule[4];
@@ -41,10 +54,14 @@ public class Swerve extends SubsystemBase implements Logged {
 
         measuredStates = new double[8];
         setpointStates = new double[8];
+        
+        odometry = new SwerveDrivePoseEstimator(SwerveConstants.KINEMATICS, Rotation2d.fromRadians(gyro.getAngle()), this.getModulePositions(), new Pose2d());
     }
 
     @Override
     public void periodic() {
+        odometryPose = odometry.update(Rotation2d.fromRadians(gyro.getAngle()), getModulePositions());
+
         measuredStates[0] = modules[0].getState().angle.getRadians();
         measuredStates[1] = modules[0].getState().speedMetersPerSecond;
         measuredStates[2] = modules[1].getState().angle.getRadians();
@@ -114,6 +131,19 @@ public class Swerve extends SubsystemBase implements Logged {
         modules[1].setState(states[1]);
         modules[2].setState(states[2]);
         modules[3].setState(states[3]);
+    }
+
+    public void addVisionMeasurement(Pose2d measurement, Measure<Time> timestamp, Matrix<N3, N1> stdevs) {
+        odometry.addVisionMeasurement(measurement, timestamp.in(Seconds), stdevs);
+    }
+
+    private SwerveModulePosition[] getModulePositions() {
+        return new SwerveModulePosition[] {
+            modules[0].getPosition(),
+            modules[1].getPosition(),
+            modules[2].getPosition(),
+            modules[3].getPosition()
+        };
     }
 
     public Command fieldOrientedCommand(DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier thetaInput) {
