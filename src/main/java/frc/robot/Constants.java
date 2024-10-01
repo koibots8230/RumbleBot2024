@@ -242,4 +242,30 @@ public class Constants {
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
   }
+
+  public static class VisionConstants {
+    public static final int ACTIVE_CAMERAS = 3;
+
+    public static final Pose2d[] CAMERA_POSITIONS = {
+      new Pose2d(-0.1524, -0.26035, new Rotation2d(Math.toRadians(90))),
+      new Pose2d(-0.1651, 0.0254, new Rotation2d(Math.toRadians(180))),
+      new Pose2d(-0.1524, 0.26035, new Rotation2d(Math.toRadians(270)))
+    }; // x is forward, y is left, counterclockwise on rotation
+
+    public static final String[][] TOPIC_NAMES = {
+      {"Cam1Tvec", "Cam1Rvec", "Cam1Ids"},
+      {"Cam2Tvec", "Cam2Rvec", "Cam2Ids"},
+      {"Cam3Tvec", "Cam3Rvec", "Cam3Ids"}
+    };
+
+    public static final double[] VECTOR_DEFAULT_VALUE = {0};
+    public static final int ID_DEFAULT_VALUE = 0;
+
+    public static final Measure<Distance> MAX_MEASUREMENT_DIFFERENCE = Meters.of(1.5);
+    public static final Rotation2d MAX_ANGLE_DIFFERENCE = Rotation2d.fromDegrees(10);
+
+    public static final double ROTATION_STDEV = 50 * Math.PI;
+    public static final double TRANSLATION_STDEV_ORDER = 2;
+    public static final double TRANSLATION_STDEV_SCALAR = 2;
+  }
 }

@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterPivot;
+import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
 import monologue.Logged;
 import monologue.Monologue;
@@ -26,6 +27,7 @@ public class RobotContainer implements Logged {
   private final ShooterPivot shooterPivot;
   private final Shooter shooter;
   private final Swerve swerve;
+  private final Vision vision;
 
   public RobotContainer(boolean isReal) {
     controller = new XboxController(0);
@@ -37,6 +39,8 @@ public class RobotContainer implements Logged {
     shooter = new Shooter(isReal);
 
     swerve = new Swerve(isReal);
+
+    vision = new Vision(swerve::getOdometryPose, swerve::getGyroAngle, swerve::addVisionMeasurement);
 
     Monologue.setupMonologue(this, "Robot", false, false);
 
