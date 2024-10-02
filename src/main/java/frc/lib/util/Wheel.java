@@ -4,8 +4,8 @@ import edu.wpi.first.units.Distance;
 import edu.wpi.first.units.Measure;
 
 public class Wheel {
-  public Measure<Distance> circumfrence;
-  public Measure<Distance> radius;
+  public final Measure<Distance> circumfrence;
+  public final Measure<Distance> radius;
 
   public Wheel(Measure<Distance> radius) {
     this.radius = radius;
