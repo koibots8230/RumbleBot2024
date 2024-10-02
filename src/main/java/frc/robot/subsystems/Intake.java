@@ -9,6 +9,7 @@ import com.revrobotics.SparkPIDController;
 import edu.wpi.first.units.Angle;
 import edu.wpi.first.units.Measure;
 import edu.wpi.first.units.Velocity;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import monologue.Logged;
@@ -28,7 +29,11 @@ public class Intake extends SubsystemBase implements Logged {
     controller.setP(IntakeConstants.PID_GAINS.kp);
   }
 
-  private void setVelocity(Measure<Velocity<Angle>> setpoint) {
-    controller.setReference(setpoint.in(RPM), ControlType.kVelocity);
+  // private void setVelocity(Measure<Velocity<Angle>> setpoint) {
+  //   controller.setReference(setpoint.in(RPM), ControlType.kVelocity);
+  // }
+  public Command setVelocity(Measure<Velocity<Angle>> setpoint) {
+    // implicitly require `this`
+    return this.runOnce(() -> controller.setReference(setpoint.in(RPM), ControlType.kVelocity));
   }
 }
