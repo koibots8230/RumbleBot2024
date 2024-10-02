@@ -11,30 +11,18 @@ import edu.wpi.first.units.*;
 import frc.lib.util.FeedforwardGains;
 import frc.lib.util.MotorConfig;
 import frc.lib.util.PIDGains;
+import frc.lib.util.Wheel;
 
 public class Constants {
   public static class RobotConstants {
     public static final Measure<Distance> WIDTH = Inches.of(26.0);
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
-    public static final Measure<Distance> WHEEL_OFFSET = Inches.of(1.754419);
-    public static final double DRIVE_POSITION_FACTOR = 1.0;
-    public static final int GYRO_ID = 24;
-
-    public static final Measure<Velocity<Distance>> MAX_LINEAR_SPEED = MetersPerSecond.of(4.125);
-    public static final Measure<Velocity<Angle>> MAX_ANGULAR_VELOCITY =
-        RadiansPerSecond.of(2 * Math.PI);
-    public static final Measure<Velocity<Velocity<Distance>>> MAX_LINEAR_ACCELERATION =
-        MetersPerSecondPerSecond.of(4);
-    public static final Measure<Velocity<Velocity<Angle>>> MAX_ANGULAR_ACCELERATION =
-        RadiansPerSecond.of(4 * Math.PI).per(Second);
-
-    private static final int DRIVING_PINION_TEETH = 13;
-    public static final double DRIVE_GEAR_RATIO = (45.0 * 22) / (DRIVING_PINION_TEETH * 15);
-    public static final double TURN_GEAR_RATIO = (62.0 / 14) * 12;
-
-    public static final Measure<Distance> DRIVE_WHEELS_RADIUS = Inches.of(1.5);
 
     public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
+
+    public static final Measure<Time> CAN_TIMEOUT = Milliseconds.of(20);
+
+    public static final double JOYSTICK_DEADBAND = 0.05;
   }
 
   public static class FieldConstants {
@@ -171,82 +159,70 @@ public class Constants {
     public static final int BOTTOM_SHOOTER_PORT = 2;
   }
 
-  public static class DrivetrainConstants {
-    public static final double DRIVE_TURN_KS = 0.0;
-    public static final PIDGains TURN_PID_CONSTANTS_REAL =
-        new PIDGains.Builder().kp(2.078 / 20d).build();
-    public static final PIDGains TURN_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(35).build();
-    public static final PIDGains DRIVE_PID_CONSTANTS_REAL =
-        new PIDGains.Builder().kp(5.5208e-10 / 20d).build();
-    public static final PIDGains DRIVE_PID_CONSTANTS_SIM = new PIDGains.Builder().kp(40).build();
-    public static final FeedforwardGains DRIVE_FEEDFORWARD_REAL =
-        new FeedforwardGains.Builder().ks(0.11386).kv(2.6819).ka(0.16507).build();
-    public static final FeedforwardGains DRIVE_FEEDFORWARD_SIM =
-        new FeedforwardGains.Builder().kv(2.65).build();
+  public static class SwerveConstants {
 
-    public static final SwerveDriveKinematics SWERVE_KINEMATICS =
+    public static final Measure<Velocity<Distance>> MAX_LINEAR_SPEED = MetersPerSecond.of(4.125);
+
+    public static final Measure<Velocity<Angle>> MAX_ANGULAR_VELOCITY =
+        RadiansPerSecond.of(2 * Math.PI);
+
+    public static final Measure<Velocity<Angle>> MAX_TURN_VELOCITY =
+        RadiansPerSecond.of(2 * Math.PI);
+    public static final Measure<Velocity<Velocity<Angle>>> MAX_TURN_ACCELERATION =
+        RadiansPerSecond.per(Second).of(Math.PI * 4);
+
+    public static final SwerveDriveKinematics KINEMATICS =
         new SwerveDriveKinematics(
-            new Translation2d( // FL
-                RobotConstants.LENGTH.divide(2).minus(RobotConstants.WHEEL_OFFSET),
-                RobotConstants.WIDTH.divide(2).minus(RobotConstants.WHEEL_OFFSET)),
-            new Translation2d( // FR
-                RobotConstants.LENGTH.divide(2).minus(RobotConstants.WHEEL_OFFSET),
-                RobotConstants.WIDTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET)),
-            new Translation2d( // BL
-                RobotConstants.LENGTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET),
-                RobotConstants.WIDTH.divide(2).minus(RobotConstants.WHEEL_OFFSET)),
-            new Translation2d( // BR
-                RobotConstants.LENGTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET),
-                RobotConstants.WIDTH.divide(-2).minus(RobotConstants.WHEEL_OFFSET))
-            );
-    public static final PIDGains VX_CONTROLLER_REAL = new PIDGains.Builder().kp(1.5).build();
-    public static final PIDGains VX_CONTROLLER_SIM = new PIDGains.Builder().build();
-    public static final PIDGains VY_CONTROLLER_REAL = new PIDGains.Builder().build();
-    public static final PIDGains VY_CONTROLLER_SIM = new PIDGains.Builder().build();
-    public static final PIDGains VTHETA_CONTROLLER_REAL = new PIDGains.Builder().build();
-    public static final PIDGains VTHETA_CONTROLLER_SIM = new PIDGains.Builder().build();
+            new Translation2d(RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(2)),
+            new Translation2d(RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(-2)),
+            new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(2)),
+            new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(-2)));
 
-    public static final MotorConfig DRIVE =
-        new MotorConfig.Builder()
-            .inverted(false)
-            .currentLimit(60)
-            .idleMode(IdleMode.kBrake)
-            .build();
-    public static final MotorConfig TURN =
-        new MotorConfig.Builder()
-            .inverted(false)
-            .currentLimit(30)
-            .idleMode(IdleMode.kBrake)
-            .build();
+    public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final FeedforwardGains DRIVE_FF_GAINS =
+        new FeedforwardGains.Builder().kv(0).build();
 
-    public static final Measure<Time> CAN_TIMEOUT =
-        Milliseconds.of(20); // Default value, but if CAN utilization gets too high, pop it to 0, or
-    // bump it up+
+    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final FeedforwardGains TURN_FF_GAINS =
+        new FeedforwardGains.Builder().ks(0).kv(0).build();
 
-    public static final Measure<Angle> TURNING_ENCODER_POSITION_FACTOR = Radians.of(2 * Math.PI);
-    public static final Measure<Velocity<Angle>> TURNING_ENCODER_VELOCITY_FACTOR =
+    public static final MotorConfig DRIVE_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(60).build();
+    public static final MotorConfig TURN_MOTOR_CONFIG =
+        new MotorConfig.Builder().currentLimit(30).build();
+
+    public static final Rotation2d[] ANGLE_OFFSETS =
+        new Rotation2d[] {
+          Rotation2d.fromRadians((3 * Math.PI) / 2),
+          Rotation2d.fromRadians(Math.PI),
+          Rotation2d.fromRadians(0),
+          Rotation2d.fromRadians(Math.PI / 2)
+        };
+
+    private static final int DRIVING_PINION_TEETH = 13;
+    public static final double DRIVE_GEAR_RATIO = (45.0 * 22) / (DRIVING_PINION_TEETH * 15);
+
+    public static final Wheel WHEELS = new Wheel(Inches.of(1.5));
+
+    public static final Measure<Angle> TURN_ENCODER_POSITION_FACTOR = Radians.of(2 * Math.PI);
+    public static final Measure<Velocity<Angle>> TURN_ENCODER_VELOCITY_FACTOR =
         RadiansPerSecond.of((2 * Math.PI) / 60.0);
 
-    public static final Measure<Distance> DRIVING_ENCODER_POSITION_FACTOR =
-        Inches.of((1.5 * 2 * Math.PI) / RobotConstants.DRIVE_GEAR_RATIO);
-    public static final Measure<Velocity<Distance>> DRIVING_ENCODER_VELOCITY_FACTOR =
-        MetersPerSecond.of(
-            ((RobotConstants.DRIVE_WHEELS_RADIUS.in(Meters) * 2 * Math.PI)
-                    / RobotConstants.DRIVE_GEAR_RATIO)
-                / 60.0);
+    public static final Measure<Distance> DRIVE_ENCODER_POSITION_FACTOR =
+        Inches.of((1.5 * 2 * Math.PI) / DRIVE_GEAR_RATIO);
+    public static final Measure<Velocity<Distance>> DRIVE_ENCODER_VELOCITY_FACTOR =
+        MetersPerSecond.of(((WHEELS.radius.in(Meters) * 2 * Math.PI) / DRIVE_GEAR_RATIO) / 60.0);
 
-    public static final int DRIVE_ENCODER_SAMPLING_DEPTH = 2;
+    public static final int FRONT_LEFT_DRIVE_ID = 36;
+    public static final int FRONT_LEFT_TURN_ID = 31;
+    public static final int FRONT_RIGHT_DRIVE_ID = 37;
+    public static final int FRONT_RIGHT_TURN_ID = 38;
+    public static final int BACK_LEFT_DRIVE_ID = 34;
+    public static final int BACK_LEFT_TURN_ID = 35;
+    public static final int BACK_RIGHT_DRIVE_ID = 32;
+    public static final int BACK_RIGHT_TURN_ID = 33;
 
-    public static class DeviceIDs { // TODO: ACTUALLY SET CANIDS
-      public static final int FRONT_LEFT_DRIVE = 36;
-      public static final int FRONT_LEFT_TURN = 31;
-      public static final int FRONT_RIGHT_DRIVE = 37;
-      public static final int FRONT_RIGHT_TURN = 38;
-      public static final int BACK_LEFT_DRIVE = 34;
-      public static final int BACK_LEFT_TURN = 35;
-      public static final int BACK_RIGHT_DRIVE = 32;
-      public static final int BACK_RIGHT_TURN = 33;
-    }
+    public static final int GYRO_ID = 24;
   }
 
   public static class IntakeConstants {
@@ -259,5 +235,31 @@ public class Constants {
 
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
+  }
+
+  public static class VisionConstants {
+    public static final int ACTIVE_CAMERAS = 3;
+
+    public static final Pose2d[] CAMERA_POSITIONS = {
+      new Pose2d(-0.1524, -0.26035, new Rotation2d(Math.toRadians(90))),
+      new Pose2d(-0.1651, 0.0254, new Rotation2d(Math.toRadians(180))),
+      new Pose2d(-0.1524, 0.26035, new Rotation2d(Math.toRadians(270)))
+    }; // x is forward, y is left, counterclockwise on rotation
+
+    public static final String[][] TOPIC_NAMES = {
+      {"Cam1Tvec", "Cam1Rvec", "Cam1Ids"},
+      {"Cam2Tvec", "Cam2Rvec", "Cam2Ids"},
+      {"Cam3Tvec", "Cam3Rvec", "Cam3Ids"}
+    };
+
+    public static final double[] VECTOR_DEFAULT_VALUE = {0};
+    public static final int ID_DEFAULT_VALUE = 0;
+
+    public static final Measure<Distance> MAX_MEASUREMENT_DIFFERENCE = Meters.of(1.5);
+    public static final Rotation2d MAX_ANGLE_DIFFERENCE = Rotation2d.fromDegrees(10);
+
+    public static final double ROTATION_STDEV = 50 * Math.PI;
+    public static final double TRANSLATION_STDEV_ORDER = 2;
+    public static final double TRANSLATION_STDEV_SCALAR = 2;
   }
 }
