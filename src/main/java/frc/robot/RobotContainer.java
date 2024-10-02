@@ -40,7 +40,8 @@ public class RobotContainer implements Logged {
 
     swerve = new Swerve(isReal);
 
-    vision = new Vision(swerve::getOdometryPose, swerve::getGyroAngle, swerve::addVisionMeasurement);
+    vision =
+        new Vision(swerve::getOdometryPose, swerve::getGyroAngle, swerve::addVisionMeasurement);
 
     Monologue.setupMonologue(this, "Robot", false, false);
 

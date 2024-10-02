@@ -173,16 +173,10 @@ public class Constants {
 
     public static final SwerveDriveKinematics KINEMATICS =
         new SwerveDriveKinematics(
-            new Translation2d[] {
-              new Translation2d(
-                  RobotConstants.WIDTH.in(Meters) / 2.0, RobotConstants.LENGTH.in(Meters) / 2.0),
-              new Translation2d(
-                  -RobotConstants.WIDTH.in(Meters) / 2.0, RobotConstants.LENGTH.in(Meters) / 2.0),
-              new Translation2d(
-                  RobotConstants.WIDTH.in(Meters) / 2.0, -RobotConstants.LENGTH.in(Meters) / 2.0),
-              new Translation2d(
-                  -RobotConstants.WIDTH.in(Meters) / 2.0, -RobotConstants.LENGTH.in(Meters) / 2.0)
-            });
+            new Translation2d(RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(2)),
+            new Translation2d(RobotConstants.LENGTH.divide(2), RobotConstants.WIDTH.divide(-2)),
+            new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(2)),
+            new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(-2)));
 
     public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0).build();
     public static final FeedforwardGains DRIVE_FF_GAINS =

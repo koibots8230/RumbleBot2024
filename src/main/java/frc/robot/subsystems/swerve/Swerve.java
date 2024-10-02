@@ -13,7 +13,6 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -75,15 +74,13 @@ public class Swerve extends SubsystemBase implements Logged {
             new Pose2d());
 
     try (Notifier odometryUpdater =
-                new Notifier(
-                        () -> {
-                            odometry.updateWithTime(
-                                    Timer.getFPGATimestamp(),
-                                    gyro.getRotation2d(),
-                                    getModulePositions());
-                        })) {
-            odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
-        }
+        new Notifier(
+            () -> {
+              odometry.updateWithTime(
+                  Timer.getFPGATimestamp(), gyro.getRotation2d(), getModulePositions());
+            })) {
+      odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
+    }
   }
 
   @Override
