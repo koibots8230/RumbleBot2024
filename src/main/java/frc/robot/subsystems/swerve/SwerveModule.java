@@ -46,6 +46,7 @@ public class SwerveModule implements Logged {
 
   @Log private double driveSetpoint;
   @Log private double drivePosition;
+  private double simStoredPosition;
   @Log private double driveVelocity;
 
   @Log private double driveCurrent;
@@ -168,6 +169,8 @@ public class SwerveModule implements Logged {
   public void simulationPeriodic() {
     turnPosition = Rotation2d.fromRadians(turnSetpointState.position);
     driveVelocity = driveSetpoint;
+    simStoredPosition += driveVelocity * 0.02;
+    drivePosition = simStoredPosition;
   }
 
   public SwerveModuleState getState() {
