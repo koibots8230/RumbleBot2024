@@ -6,6 +6,7 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 import com.ctre.phoenix6.hardware.Pigeon2;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -13,11 +14,13 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveConstants;
 import java.util.function.DoubleSupplier;
@@ -29,12 +32,16 @@ public class Swerve extends SubsystemBase implements Logged {
   private final SwerveModule[] modules;
 
   private final Pigeon2 gyro;
+  private Rotation2d simStoredAngle;
 
   private final SwerveDrivePoseEstimator odometry;
+
+  private final PIDController anglePID;
 
   @Log private double[] setpointStates;
   @Log private double[] measuredStates;
 
+  @Log Rotation2d gyroAngle;
   @Log Pose2d odometryPose;
 
   public Swerve(boolean isReal) {
@@ -73,7 +80,8 @@ public class Swerve extends SubsystemBase implements Logged {
             this.getModulePositions(),
             new Pose2d());
 
-    try (Notifier odometryUpdater =
+    if (isReal) {
+        try (Notifier odometryUpdater =
         new Notifier(
             () -> {
               odometry.updateWithTime(
@@ -81,11 +89,35 @@ public class Swerve extends SubsystemBase implements Logged {
             })) {
       odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
     }
+
+    }
+    anglePID =
+        new PIDController(
+            SwerveConstants.ANGLE_PID_GAINS.kp,
+            SwerveConstants.ANGLE_PID_GAINS.ki,
+            SwerveConstants.ANGLE_PID_GAINS.kd);
+    anglePID.enableContinuousInput(-Math.PI, Math.PI);
+
+    if(!isReal) {
+        simStoredAngle = new Rotation2d();
+    }
   }
 
   @Override
   public void periodic() {
-    odometryPose = odometry.update(Rotation2d.fromRadians(gyro.getAngle()), getModulePositions());
+    try {
+      odometryPose =
+          odometry.update(
+              Rotation2d.fromRadians(
+                  (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+                      ? this.getGyroAngle().getRadians()
+                      : this.getGyroAngle().getRadians() + Math.PI),
+              getModulePositions());
+    } catch (Exception e) {
+      odometryPose = odometry.update(Rotation2d.fromRadians(gyro.getAngle()), getModulePositions());
+    }
+
+    gyroAngle = gyro.getRotation2d();
 
     measuredStates[0] = modules[0].getState().angle.getRadians();
     measuredStates[1] = modules[0].getState().speedMetersPerSecond;
@@ -108,6 +140,15 @@ public class Swerve extends SubsystemBase implements Logged {
     modules[1].simulationPeriodic();
     modules[2].simulationPeriodic();
     modules[3].simulationPeriodic();
+
+    simStoredAngle = Rotation2d.fromRadians(SwerveConstants.KINEMATICS.toChassisSpeeds(
+        modules[0].getState(),
+        modules[1].getState(),
+        modules[2].getState(),
+        modules[3].getState()
+    ).omegaRadiansPerSecond * 0.02 + simStoredAngle.getRadians());
+
+    gyroAngle = simStoredAngle;
   }
 
   private void driveRobotRelative(ChassisSpeeds speeds) {
@@ -150,7 +191,29 @@ public class Swerve extends SubsystemBase implements Logged {
             MetersPerSecond.of(joysticks[1] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond)),
             RadiansPerSecond.of(
                 joysticks[2] * SwerveConstants.MAX_ANGULAR_VELOCITY.in(RadiansPerSecond)),
-            Rotation2d.fromRadians(gyro.getAngle()));
+            gyroAngle);
+
+    return speeds;
+  }
+
+  private ChassisSpeeds joystickToRobotRelativePointAtTarget(
+      double xInput, double yInput) {
+    double[] joysticks = applyJoystickScaling(xInput, yInput, 0);
+    
+    Pose2d target = (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+                ? FieldConstants.BLUE_SPEAKER_POSE
+                : FieldConstants.RED_SPEAKER_POSE;
+    ChassisSpeeds speeds =
+        ChassisSpeeds.fromFieldRelativeSpeeds(
+            MetersPerSecond.of(joysticks[0] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond)),
+            MetersPerSecond.of(joysticks[1] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond)),
+            RadiansPerSecond.of(
+                anglePID.calculate(
+                    this.getOdometryPose().getRotation().getRadians(),
+                    Math.atan2(
+                        target.getY() - this.getOdometryPose().getY(),
+                        target.getX() - this.getOdometryPose().getX()))),
+            gyroAngle);
 
     return speeds;
   }
@@ -192,7 +255,7 @@ public class Swerve extends SubsystemBase implements Logged {
   }
 
   public Rotation2d getGyroAngle() {
-    return gyro.getRotation2d();
+    return gyroAngle;
   }
 
   public Command fieldOrientedCommand(
@@ -202,6 +265,16 @@ public class Swerve extends SubsystemBase implements Logged {
             driveRobotRelative(
                 joystickToRobotRelative(
                     -xInput.getAsDouble(), -yInput.getAsDouble(), -thetaInput.getAsDouble())),
+        this);
+  }
+
+  public Command fieldOrientedWhilePointingCommand(
+      DoubleSupplier xInput, DoubleSupplier yInput) {
+    return Commands.run(
+        () ->
+            driveRobotRelative(
+                joystickToRobotRelativePointAtTarget(
+                    -xInput.getAsDouble(), -yInput.getAsDouble())),
         this);
   }
 }

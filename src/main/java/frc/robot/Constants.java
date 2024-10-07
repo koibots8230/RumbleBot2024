@@ -186,6 +186,8 @@ public class Constants {
     public static final FeedforwardGains TURN_FF_GAINS =
         new FeedforwardGains.Builder().ks(0).kv(0).build();
 
+    public static final PIDGains ANGLE_PID_GAINS = new PIDGains.Builder().kp(30).kd(0).build();
+
     public static final MotorConfig DRIVE_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(60).build();
     public static final MotorConfig TURN_MOTOR_CONFIG =
@@ -229,7 +231,7 @@ public class Constants {
 
     public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(0);
 
-    public static final int INTAKE_MOTOR_PORT = 5;
+    public static final int INTAKE_MOTOR_PORT = 8;
 
     public static final double INTAKE_FEED_FORWARD = 0.0;
 
