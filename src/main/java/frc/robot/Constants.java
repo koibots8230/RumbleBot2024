@@ -26,10 +26,18 @@ public class Constants {
   }
 
   public static class FieldConstants {
-
+    public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
     public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
 
-    public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
+    public static final Pose2d BLUE_AMP_POSE = new Pose2d(1.88, 7.73, Rotation2d.fromRadians(-Math.PI / 2));
+    public static final Pose2d RED_AMP_POSE = new Pose2d(14.70, 7.73, Rotation2d.fromRadians(-Math.PI / 2));
+  }
+
+  public static class AlignConstants {
+    public static final PIDGains ASSIST_GAINS = new PIDGains.Builder().kp(0).build();
+
+    public static final Measure<Distance> AMP_MIN_DISTANCE = Meters.of(0.5);
+    public static final Rotation2d AMP_ALLOWED_ANGLE_MARGIN = new Rotation2d(Math.PI / 8.0);
   }
 
   public static class IndexerConstants {
