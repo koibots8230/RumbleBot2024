@@ -29,8 +29,12 @@ import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveConstants;
+
+import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
+
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -207,7 +211,7 @@ public class Swerve extends SubsystemBase implements Logged {
     return MetersPerSecond.of(distancePerpToVel.in(Meters) * AlignConstants.ASSIST_GAINS.kp);
   }
 
-  private Pose2d ampAlignAssist(double xInput, double yInput, BooleanSupplier notePresent) {
+  private Pose2d ampAlignAssist(double xInput, double yInput, BooleanSupplier hasNote) {
     Pose2d ampPose;
     try {
       ampPose =
@@ -230,7 +234,7 @@ public class Swerve extends SubsystemBase implements Logged {
         || this.gyroAngle.getRadians()
             < ampPose.getRotation().getRadians()
                 - AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
-        || !notePresent.getAsBoolean()) {
+        || !hasNote.getAsBoolean()) {
       return new Pose2d();
     }
 
@@ -251,11 +255,11 @@ public class Swerve extends SubsystemBase implements Logged {
     );
   }
 
-  private ChassisSpeeds joystickToRobotRelative(double xInput, double yInput, double thetaInput) {
+  private ChassisSpeeds joystickToRobotRelative(double xInput, double yInput, double thetaInput, BooleanSupplier hasNote, Supplier<List<Translation2d>> notePositions) {
     double[] joysticks = applyJoystickScaling(xInput, yInput, thetaInput);
 
-    Pose2d ampAdjust = ampAlignAssist(xInput, yInput, () -> true);
-    
+    Pose2d ampAdjust = ampAlignAssist(xInput, yInput, hasNote);
+
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
             MetersPerSecond.of(joysticks[0] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond) + ampAdjust.getX()),
@@ -330,12 +334,12 @@ public class Swerve extends SubsystemBase implements Logged {
   }
 
   public Command fieldOrientedCommand(
-      DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier thetaInput) {
+      DoubleSupplier xInput, DoubleSupplier yInput, DoubleSupplier thetaInput, BooleanSupplier hasNote, Supplier<List<Translation2d>> notePositions) {
     return Commands.run(
         () ->
             driveRobotRelative(
                 joystickToRobotRelative(
-                    -xInput.getAsDouble(), -yInput.getAsDouble(), -thetaInput.getAsDouble())),
+                    -xInput.getAsDouble(), -yInput.getAsDouble(), -thetaInput.getAsDouble(), hasNote, notePositions)),
         this);
   }
 

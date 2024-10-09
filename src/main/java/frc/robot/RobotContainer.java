@@ -78,7 +78,7 @@ public class RobotContainer implements Logged {
 
     swerve.setDefaultCommand(
         swerve.fieldOrientedCommand(
-            controller::getLeftY, controller::getLeftX, controller::getRightX));
+            controller::getLeftY, controller::getLeftX, controller::getRightX, indexer::hasNote, null));
   }
 
   public Command getAutonomousCommand() {
