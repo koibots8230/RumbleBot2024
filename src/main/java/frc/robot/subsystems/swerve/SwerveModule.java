@@ -56,6 +56,7 @@ public class SwerveModule implements Logged {
     turnMotor = new CANSparkMax(turnID, MotorType.kBrushless);
 
     turnMotor.restoreFactoryDefaults();
+    turnMotor.clearFaults();
 
     turnMotor.setSmartCurrentLimit(SwerveConstants.TURN_MOTOR_CONFIG.currentLimit);
     turnMotor.setInverted(SwerveConstants.TURN_MOTOR_CONFIG.inverted);
@@ -96,6 +97,9 @@ public class SwerveModule implements Logged {
 
     driveMotor = new CANSparkFlex(driveID, MotorType.kBrushless);
 
+    driveMotor.restoreFactoryDefaults();
+    driveMotor.clearFaults();
+
     driveMotor.setSmartCurrentLimit(SwerveConstants.DRIVE_MOTOR_CONFIG.currentLimit);
     driveMotor.setInverted(SwerveConstants.DRIVE_MOTOR_CONFIG.inverted);
     driveMotor.setIdleMode(SwerveConstants.DRIVE_MOTOR_CONFIG.idleMode);
@@ -126,11 +130,13 @@ public class SwerveModule implements Logged {
     driveVelocity = 0;
 
     this.angleOffset = angleOffset;
+
+    System.out.println(this.angleOffset);
   }
 
   public void setState(SwerveModuleState state) {
-    SwerveModuleState optimizedState = SwerveModuleState.optimize(state, turnPosition);
-
+    //SwerveModuleState optimizedState = SwerveModuleState.optimize(state, turnPosition);
+    SwerveModuleState optimizedState = state;
     optimizedState.speedMetersPerSecond =
         optimizedState.speedMetersPerSecond * optimizedState.angle.minus(turnPosition).getCos();
 
@@ -141,8 +147,12 @@ public class SwerveModule implements Logged {
 
     turnSetpointState = turnProfile.calculate(0.02, turnSetpointState, turnGoalState);
 
+    System.out.println(optimizedState.angle.getRadians() + angleOffset.getRadians());
+    System.out.println(turnEncoder.getPosition());
+    System.out.println(turnPosition.getRadians());
+
     turnPID.setReference(
-        optimizedState.angle.getRadians(),
+        optimizedState.angle.getRadians() + angleOffset.getRadians(),
         ControlType.kPosition,
         0,
         turnFF.calculate(turnSetpointState.velocity));

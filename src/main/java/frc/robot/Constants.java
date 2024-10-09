@@ -61,8 +61,8 @@ public class Constants {
     public static final MotorConfig BOTTOM_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(30).build();
 
-    public static final int TOP_MOTOR_PORT = 5;
-    public static final int BOTTOM_MOTOR_PORT = 6;
+    public static final int TOP_MOTOR_PORT = 10;
+    public static final int BOTTOM_MOTOR_PORT = 11;
 
     public static final int TOP_NOTE_DETECTOR_PORT = 0;
     public static final int BOTTOM_NOTE_DETECTOR_PORT = 1;
@@ -97,14 +97,14 @@ public class Constants {
     public static final MotorConfig RIGHT_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(60).build();
 
-    public static final int LEFT_MOTOR_PORT = 3;
-    public static final int RIGHT_MOTOR_PORT = 4;
+    public static final int LEFT_MOTOR_PORT = 16;
+    public static final int RIGHT_MOTOR_PORT = 17;
   }
 
   //  TODO add actual values into here
   public static class ShooterPivotConstants {
 
-    public static final int SHOOTER_PIVOT_MOTER = 0;
+    public static final int SHOOTER_PIVOT_MOTER = 15;
 
     public static final Rotation2d MAX_VELOCITY = Rotation2d.fromDegrees(30);
     public static final Rotation2d MAX_ACCLERATION = Rotation2d.fromDegrees(15);
@@ -154,9 +154,9 @@ public class Constants {
 
     // 6
 
-    public static final int TOP_SHOOTER_PORT = 1;
+    public static final int TOP_SHOOTER_PORT = 13;
 
-    public static final int BOTTOM_SHOOTER_PORT = 2;
+    public static final int BOTTOM_SHOOTER_PORT = 14;
   }
 
   public static class SwerveConstants {
@@ -180,11 +180,11 @@ public class Constants {
 
     public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0).build();
     public static final FeedforwardGains DRIVE_FF_GAINS =
-        new FeedforwardGains.Builder().kv(0).build();
+        new FeedforwardGains.Builder().kv(0.1).build();
 
-    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0.4).build();
     public static final FeedforwardGains TURN_FF_GAINS =
-        new FeedforwardGains.Builder().ks(0).kv(0).build();
+        new FeedforwardGains.Builder().ks(0.3).kv(0.35).build();
 
     public static final PIDGains ANGLE_PID_GAINS = new PIDGains.Builder().kp(30).kd(0).build();
 
@@ -195,10 +195,10 @@ public class Constants {
 
     public static final Rotation2d[] ANGLE_OFFSETS =
         new Rotation2d[] {
-          Rotation2d.fromRadians((3 * Math.PI) / 2),
+          Rotation2d.fromRadians((3 * Math.PI) / 2.0),
           Rotation2d.fromRadians(Math.PI),
           Rotation2d.fromRadians(0),
-          Rotation2d.fromRadians(Math.PI / 2)
+          Rotation2d.fromRadians(Math.PI / 2.0)
         };
 
     private static final int DRIVING_PINION_TEETH = 13;
@@ -215,23 +215,23 @@ public class Constants {
     public static final Measure<Velocity<Distance>> DRIVE_ENCODER_VELOCITY_FACTOR =
         MetersPerSecond.of(((WHEELS.radius.in(Meters) * 2 * Math.PI) / DRIVE_GEAR_RATIO) / 60.0);
 
-    public static final int FRONT_LEFT_DRIVE_ID = 36;
-    public static final int FRONT_LEFT_TURN_ID = 31;
-    public static final int FRONT_RIGHT_DRIVE_ID = 37;
-    public static final int FRONT_RIGHT_TURN_ID = 38;
-    public static final int BACK_LEFT_DRIVE_ID = 34;
-    public static final int BACK_LEFT_TURN_ID = 35;
-    public static final int BACK_RIGHT_DRIVE_ID = 32;
-    public static final int BACK_RIGHT_TURN_ID = 33;
+    public static final int FRONT_LEFT_DRIVE_ID = 1;
+    public static final int FRONT_LEFT_TURN_ID = 2;
+    public static final int FRONT_RIGHT_DRIVE_ID = 3;
+    public static final int FRONT_RIGHT_TURN_ID = 4;
+    public static final int BACK_LEFT_DRIVE_ID = 5;
+    public static final int BACK_LEFT_TURN_ID = 6;
+    public static final int BACK_RIGHT_DRIVE_ID = 7;
+    public static final int BACK_RIGHT_TURN_ID = 8;
 
-    public static final int GYRO_ID = 24;
+    public static final int GYRO_ID = 18;
   }
 
   public static class IntakeConstants {
 
     public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(0);
 
-    public static final int INTAKE_MOTOR_PORT = 8;
+    public static final int INTAKE_MOTOR_PORT = 9;
 
     public static final double INTAKE_FEED_FORWARD = 0.0;
 
