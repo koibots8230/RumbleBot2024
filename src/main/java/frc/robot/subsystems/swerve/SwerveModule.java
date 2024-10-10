@@ -6,6 +6,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -64,6 +65,10 @@ public class SwerveModule implements Logged {
     turnMotor.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
     turnMotor.setCANTimeout((int) RobotConstants.CAN_TIMEOUT.in(Milliseconds));
 
+    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 32767);
+    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 32767);
+    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 3);
+
     turnEncoder = turnMotor.getAbsoluteEncoder();
 
     turnEncoder.setPositionConversionFactor(
@@ -106,6 +111,12 @@ public class SwerveModule implements Logged {
     driveMotor.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
     driveMotor.setCANTimeout((int) RobotConstants.CAN_TIMEOUT.in(Milliseconds));
 
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 3);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 32767);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 32767);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 32767);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 32767);
+
     driveEncoder = driveMotor.getEncoder();
 
     driveEncoder.setPositionConversionFactor(
@@ -130,8 +141,6 @@ public class SwerveModule implements Logged {
     driveVelocity = 0;
 
     this.angleOffset = angleOffset;
-
-    System.out.println(this.angleOffset);
   }
 
   public void setState(SwerveModuleState state) {
@@ -163,7 +172,7 @@ public class SwerveModule implements Logged {
   public void periodic() {
     turnSetpoint = Rotation2d.fromRadians(turnGoalState.position);
 
-    turnPosition = Rotation2d.fromRadians(turnEncoder.getPosition() + angleOffset.getRadians());
+    turnPosition = Rotation2d.fromRadians(turnEncoder.getPosition() - angleOffset.getRadians());
     turnVelocity = turnEncoder.getVelocity();
 
     turnCurrent = turnMotor.getOutputCurrent();
