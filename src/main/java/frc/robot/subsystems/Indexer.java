@@ -115,13 +115,14 @@ public class Indexer extends SubsystemBase implements Logged {
 
   public Command intakeCommand() {
     return Commands.sequence(
-    Commands.startEnd(
-            () ->
-                this.setVelocity(
-                    IndexerConstants.TOP_INTAKING_SPEED, IndexerConstants.BOTTOM_INTAKING_SPEED),
-            () -> this.setVelocity(RPM.of(0), RPM.of(0)),
-            this)
-        .onlyWhile(() -> !topNoteDetector.get()),
+        Commands.startEnd(
+                () ->
+                    this.setVelocity(
+                        IndexerConstants.TOP_INTAKING_SPEED,
+                        IndexerConstants.BOTTOM_INTAKING_SPEED),
+                () -> this.setVelocity(RPM.of(0), RPM.of(0)),
+                this)
+            .onlyWhile(() -> !topNoteDetector.get()),
         Commands.runOnce(() -> setNoteStatus(true)));
   }
 

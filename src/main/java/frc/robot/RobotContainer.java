@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.ArrayList;
+
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -78,7 +80,11 @@ public class RobotContainer implements Logged {
 
     swerve.setDefaultCommand(
         swerve.fieldOrientedCommand(
-            controller::getLeftY, controller::getLeftX, controller::getRightX, indexer::hasNote, null));
+            controller::getLeftY,
+            controller::getLeftX,
+            controller::getLeftTriggerAxis, //TODO: back to x
+            () -> true, //TODO: put back to indexer sensor
+            () -> new ArrayList<>()));
   }
 
   public Command getAutonomousCommand() {
