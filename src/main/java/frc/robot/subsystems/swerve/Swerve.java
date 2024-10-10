@@ -81,28 +81,28 @@ public class Swerve extends SubsystemBase implements Logged {
             new Pose2d());
 
     if (isReal) {
-        try (Notifier odometryUpdater =
-        new Notifier(
-            () -> {
+      try (Notifier odometryUpdater =
+          new Notifier(
+              () -> {
                 try {
-                    modules[0].periodic();
-                    modules[1].periodic();
-                    modules[2].periodic();
-                    modules[3].periodic();
+                  modules[0].periodic();
+                  modules[1].periodic();
+                  modules[2].periodic();
+                  modules[3].periodic();
 
-                    odometry.updateWithTime(
-                        Timer.getFPGATimestamp(),
-                        (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
-                            ? gyro.getRotation2d()
-                            : gyro.getRotation2d().plus(Rotation2d.fromRadians(Math.PI)),
-                        getModulePositions());
+                  odometry.updateWithTime(
+                      Timer.getFPGATimestamp(),
+                      (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+                          ? gyro.getRotation2d()
+                          : gyro.getRotation2d().plus(Rotation2d.fromRadians(Math.PI)),
+                      getModulePositions());
                 } catch (Exception e) {
-                    odometry.updateWithTime(Timer.getFPGATimestamp(), gyro.getRotation2d(), getModulePositions());
+                  odometry.updateWithTime(
+                      Timer.getFPGATimestamp(), gyro.getRotation2d(), getModulePositions());
                 }
-              
-            })) {
-      odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
-    }
+              })) {
+        odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
+      }
     }
     anglePID =
         new PIDController(
@@ -111,8 +111,8 @@ public class Swerve extends SubsystemBase implements Logged {
             SwerveConstants.ANGLE_PID_GAINS.kd);
     anglePID.enableContinuousInput(-Math.PI, Math.PI);
 
-    if(!isReal) {
-        simStoredAngle = new Rotation2d();
+    if (!isReal) {
+      simStoredAngle = new Rotation2d();
     }
   }
 
@@ -149,12 +149,16 @@ public class Swerve extends SubsystemBase implements Logged {
     modules[2].simulationPeriodic();
     modules[3].simulationPeriodic();
 
-    simStoredAngle = Rotation2d.fromRadians(SwerveConstants.KINEMATICS.toChassisSpeeds(
-        modules[0].getState(),
-        modules[1].getState(),
-        modules[2].getState(),
-        modules[3].getState()
-    ).omegaRadiansPerSecond * 0.02 + simStoredAngle.getRadians());
+    simStoredAngle =
+        Rotation2d.fromRadians(
+            SwerveConstants.KINEMATICS.toChassisSpeeds(
+                            modules[0].getState(),
+                            modules[1].getState(),
+                            modules[2].getState(),
+                            modules[3].getState())
+                        .omegaRadiansPerSecond
+                    * 0.02
+                + simStoredAngle.getRadians());
 
     gyroAngle = simStoredAngle;
   }
@@ -204,13 +208,13 @@ public class Swerve extends SubsystemBase implements Logged {
     return speeds;
   }
 
-  private ChassisSpeeds joystickToRobotRelativePointAtTarget(
-      double xInput, double yInput) {
+  private ChassisSpeeds joystickToRobotRelativePointAtTarget(double xInput, double yInput) {
     double[] joysticks = applyJoystickScaling(xInput, yInput, 0);
-    
-    Pose2d target = (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
-                ? FieldConstants.BLUE_SPEAKER_POSE
-                : FieldConstants.RED_SPEAKER_POSE;
+
+    Pose2d target =
+        (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+            ? FieldConstants.BLUE_SPEAKER_POSE
+            : FieldConstants.RED_SPEAKER_POSE;
     ChassisSpeeds speeds =
         ChassisSpeeds.fromFieldRelativeSpeeds(
             MetersPerSecond.of(joysticks[0] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond)),
@@ -276,13 +280,11 @@ public class Swerve extends SubsystemBase implements Logged {
         this);
   }
 
-  public Command fieldOrientedWhilePointingCommand(
-      DoubleSupplier xInput, DoubleSupplier yInput) {
+  public Command fieldOrientedWhilePointingCommand(DoubleSupplier xInput, DoubleSupplier yInput) {
     return Commands.run(
         () ->
             driveRobotRelative(
-                joystickToRobotRelativePointAtTarget(
-                    -xInput.getAsDouble(), -yInput.getAsDouble())),
+                joystickToRobotRelativePointAtTarget(-xInput.getAsDouble(), -yInput.getAsDouble())),
         this);
   }
 }

@@ -144,7 +144,7 @@ public class SwerveModule implements Logged {
   }
 
   public void setState(SwerveModuleState state) {
-    //SwerveModuleState optimizedState = SwerveModuleState.optimize(state, turnPosition);
+    // SwerveModuleState optimizedState = SwerveModuleState.optimize(state, turnPosition);
     SwerveModuleState optimizedState = state;
     optimizedState.speedMetersPerSecond =
         optimizedState.speedMetersPerSecond * optimizedState.angle.minus(turnPosition).getCos();
