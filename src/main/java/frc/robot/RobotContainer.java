@@ -81,8 +81,8 @@ public class RobotContainer implements Logged {
         swerve.fieldOrientedCommand(
             controller::getLeftY,
             controller::getLeftX,
-            controller::getLeftTriggerAxis, // TODO: back to x
-            () -> true, // TODO: put back to indexer sensor
+            controller::getRightX,
+            indexer::hasNote,
             () -> new ArrayList<>()));
   }
 
