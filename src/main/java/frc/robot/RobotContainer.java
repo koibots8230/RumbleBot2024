@@ -4,9 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Inches;
-
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -19,6 +16,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterPivot;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
+import java.util.ArrayList;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -61,7 +59,15 @@ public class RobotContainer implements Logged {
   private void configureBindings() {
 
     Trigger shoot = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
-    shoot.onTrue(ScoringCommands.shootSpeaker(elevator, indexer, shooter, shooterPivot, swerve, controller::getLeftY, controller::getLeftX));
+    shoot.onTrue(
+        ScoringCommands.shootSpeaker(
+            elevator,
+            indexer,
+            shooter,
+            shooterPivot,
+            swerve,
+            controller::getLeftY,
+            controller::getLeftX));
   }
 
   private void subsystemDefualtCommands() {
@@ -73,7 +79,11 @@ public class RobotContainer implements Logged {
 
     swerve.setDefaultCommand(
         swerve.fieldOrientedCommand(
-            controller::getLeftY, controller::getLeftX, controller::getRightX));
+            controller::getLeftY,
+            controller::getLeftX,
+            controller::getRightX,
+            indexer::hasNote,
+            () -> new ArrayList<>()));
   }
 
   public Command getAutonomousCommand() {
