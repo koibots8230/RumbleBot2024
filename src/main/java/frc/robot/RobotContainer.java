@@ -16,6 +16,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterPivot;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
+import java.util.ArrayList;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -78,7 +79,11 @@ public class RobotContainer implements Logged {
 
     swerve.setDefaultCommand(
         swerve.fieldOrientedCommand(
-            controller::getLeftY, controller::getLeftX, controller::getRightX));
+            controller::getLeftY,
+            controller::getLeftX,
+            controller::getRightX,
+            indexer::hasNote,
+            () -> new ArrayList<>()));
   }
 
   public Command getAutonomousCommand() {
