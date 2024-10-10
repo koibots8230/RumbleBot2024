@@ -93,8 +93,22 @@ public class Swerve extends SubsystemBase implements Logged {
       try (Notifier odometryUpdater =
           new Notifier(
               () -> {
-                odometry.updateWithTime(
-                    Timer.getFPGATimestamp(), gyro.getRotation2d(), getModulePositions());
+                try {
+                  modules[0].periodic();
+                  modules[1].periodic();
+                  modules[2].periodic();
+                  modules[3].periodic();
+
+                  odometry.updateWithTime(
+                      Timer.getFPGATimestamp(),
+                      (DriverStation.getAlliance().get() == DriverStation.Alliance.Blue)
+                          ? gyro.getRotation2d()
+                          : gyro.getRotation2d().plus(Rotation2d.fromRadians(Math.PI)),
+                      getModulePositions());
+                } catch (Exception e) {
+                  odometry.updateWithTime(
+                      Timer.getFPGATimestamp(), gyro.getRotation2d(), getModulePositions());
+                }
               })) {
         odometryUpdater.startPeriodic(1.0 / 200); // Run at 200hz
       }
@@ -135,11 +149,6 @@ public class Swerve extends SubsystemBase implements Logged {
     measuredStates[5] = modules[2].getState().speedMetersPerSecond;
     measuredStates[6] = modules[3].getState().angle.getRadians();
     measuredStates[7] = modules[3].getState().speedMetersPerSecond;
-
-    modules[0].periodic();
-    modules[1].periodic();
-    modules[2].periodic();
-    modules[3].periodic();
   }
 
   @Override
