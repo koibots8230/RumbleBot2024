@@ -42,8 +42,10 @@ public class Constants {
     public static final Rotation2d AMP_ALLOWED_ANGLE_MARGIN = new Rotation2d(Math.PI / 6.0);
 
     public static final Measure<Distance> NOTE_MIN_DISTANCE = Meters.of(0.75);
-    public static final Rotation2d NOTE_ALLOWED_ANGLE_MARGIN = Rotation2d.fromRadians(Math.PI / 4.0);
-    public static final Rotation2d NOTE_ALLOWED_DIRECTION_MARGIN = Rotation2d.fromRadians(Math.PI / 3.0);
+    public static final Rotation2d NOTE_ALLOWED_ANGLE_MARGIN =
+        Rotation2d.fromRadians(Math.PI / 4.0);
+    public static final Rotation2d NOTE_ALLOWED_DIRECTION_MARGIN =
+        Rotation2d.fromRadians(Math.PI / 3.0);
   }
 
   public static class IndexerConstants {

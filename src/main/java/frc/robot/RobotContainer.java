@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import java.util.ArrayList;
-
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -18,6 +16,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterPivot;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
+import java.util.ArrayList;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -82,8 +81,8 @@ public class RobotContainer implements Logged {
         swerve.fieldOrientedCommand(
             controller::getLeftY,
             controller::getLeftX,
-            controller::getLeftTriggerAxis, //TODO: back to x
-            () -> true, //TODO: put back to indexer sensor
+            controller::getLeftTriggerAxis, // TODO: back to x
+            () -> true, // TODO: put back to indexer sensor
             () -> new ArrayList<>()));
   }
 

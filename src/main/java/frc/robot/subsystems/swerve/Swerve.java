@@ -33,9 +33,6 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
-import javax.transaction.xa.Xid;
-
 import monologue.Annotations.Log;
 import monologue.Logged;
 
@@ -197,7 +194,8 @@ public class Swerve extends SubsystemBase implements Logged {
     };
   }
 
-  private Pose2d getAssistVelocity(Translation2d targetPose, Rotation2d targetAngle, double xInput, double yInput) {
+  private Pose2d getAssistVelocity(
+      Translation2d targetPose, Rotation2d targetAngle, double xInput, double yInput) {
     Translation2d[] points =
         new Translation2d[] {
           this.getOdometryPose().getTranslation(),
@@ -205,13 +203,11 @@ public class Swerve extends SubsystemBase implements Logged {
               this.getOdometryPose().getX() + xInput, this.getOdometryPose().getY() + yInput)
         };
 
-    Rotation2d angleToTarget = Rotation2d.fromRadians(Math.atan2(
-                    this.getOdometryPose().getY() - targetPose.getY(),
-                    this.getOdometryPose().getX() - targetPose.getX()));
-    
-    System.out.println("X: " + (this.getOdometryPose().getX() - targetPose.getX()));
-    System.out.println("Y: " + (this.getOdometryPose().getY() - targetPose.getY()));
-    System.out.println(angleToTarget);
+    Rotation2d angleToTarget =
+        Rotation2d.fromRadians(
+            Math.atan2(
+                this.getOdometryPose().getY() - targetPose.getY(),
+                this.getOdometryPose().getX() - targetPose.getX()));
 
     Measure<Distance> distancePerpToVel =
         Meters.of( // Looks complicated, but just the "Line from two points" from this
@@ -225,46 +221,44 @@ public class Swerve extends SubsystemBase implements Logged {
                     Math.pow((points[1].getY() - points[0].getY()), 2)
                         + Math.pow((points[1].getX() - points[0].getX()), 2)));
 
-    Measure<Velocity<Distance>> assistVelocity = MetersPerSecond.of(distancePerpToVel.in(Meters) * AlignConstants.ASSIST_GAINS.kp);
+    Measure<Velocity<Distance>> assistVelocity =
+        MetersPerSecond.of(distancePerpToVel.in(Meters) * AlignConstants.ASSIST_GAINS.kp);
 
     return new Pose2d(
         assistVelocity.in(MetersPerSecond) * angleToTarget.getCos(),
         assistVelocity.in(MetersPerSecond) * angleToTarget.getSin(),
-        new Rotation2d(
-            anglePID.calculate(gyroAngle.getRadians(), targetAngle.getRadians())));
+        new Rotation2d(anglePID.calculate(gyroAngle.getRadians(), targetAngle.getRadians())));
   }
 
   private Pose2d noteAlignAssist(
       double xInput, double yInput, BooleanSupplier hasNote, List<Translation2d> notePositions) {
     if (notePositions.size() == 0) {
-        return new Pose2d();
+      return new Pose2d();
     }
     Translation2d closestNote = this.getOdometryPose().getTranslation().nearest(notePositions);
 
     double distanceToNote = closestNote.getDistance(this.getOdometryPose().getTranslation());
 
-    Rotation2d angleToNote = Rotation2d.fromRadians(Math.atan2(
-                    closestNote.getX() - this.getOdometryPose().getX(),
-                    closestNote.getY() - this.getOdometryPose().getY()));
+    Rotation2d angleToNote =
+        Rotation2d.fromRadians(
+            Math.atan2(
+                closestNote.getX() - this.getOdometryPose().getX(),
+                closestNote.getY() - this.getOdometryPose().getY()));
 
     if (distanceToNote > AlignConstants.NOTE_MIN_DISTANCE.in(Meters)
         || (this.getWrappedGyroAngle().getRadians()
-            > angleToNote.getRadians()
-                + AlignConstants.NOTE_ALLOWED_ANGLE_MARGIN.getRadians()
-        && this.getWrappedGyroAngle().getRadians()
-            < angleToNote.getRadians()
-                - AlignConstants.NOTE_ALLOWED_ANGLE_MARGIN.getRadians())
+                > angleToNote.getRadians() + AlignConstants.NOTE_ALLOWED_ANGLE_MARGIN.getRadians()
+            && this.getWrappedGyroAngle().getRadians()
+                < angleToNote.getRadians() - AlignConstants.NOTE_ALLOWED_ANGLE_MARGIN.getRadians())
         || hasNote.getAsBoolean()
         || Math.atan2(xInput, yInput)
-            < angleToNote.getRadians()
-                + AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
+            < angleToNote.getRadians() + AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
         || Math.atan2(xInput, yInput)
-            > angleToNote.getRadians()
-                - AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
+            > angleToNote.getRadians() - AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
         || (yInput == 0 && xInput == 0)) {
-        return new Pose2d();
+      return new Pose2d();
     }
-    
+
     return getAssistVelocity(closestNote, angleToNote, xInput, yInput);
   }
 
@@ -286,11 +280,11 @@ public class Swerve extends SubsystemBase implements Logged {
 
     if (distaceToAmp > AlignConstants.AMP_MIN_DISTANCE.in(Meters)
         || (this.getWrappedGyroAngle().getRadians()
-            > ampPose.getRotation().getRadians()
-                + AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
-        && this.getWrappedGyroAngle().getRadians()
-            < ampPose.getRotation().getRadians()
-                - AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians())
+                > ampPose.getRotation().getRadians()
+                    + AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians()
+            && this.getWrappedGyroAngle().getRadians()
+                < ampPose.getRotation().getRadians()
+                    - AlignConstants.AMP_ALLOWED_ANGLE_MARGIN.getRadians())
         || !hasNote.getAsBoolean()
         || yInput >= -0.05
         || (yInput == 0 && xInput == 0)) {
@@ -316,13 +310,16 @@ public class Swerve extends SubsystemBase implements Logged {
         ChassisSpeeds.fromFieldRelativeSpeeds(
             MetersPerSecond.of(
                 joysticks[0] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond)
-                    + ampAdjust.getX() + noteAdjust.getX()),
+                    + ampAdjust.getX()
+                    + noteAdjust.getX()),
             MetersPerSecond.of(
                 joysticks[1] * SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond)
-                    + ampAdjust.getY() + noteAdjust.getY()),
+                    + ampAdjust.getY()
+                    + noteAdjust.getY()),
             RadiansPerSecond.of(
                 joysticks[2] * SwerveConstants.MAX_ANGULAR_VELOCITY.in(RadiansPerSecond)
-                    + ampAdjust.getRotation().getRadians() + noteAdjust.getRotation().getRadians()),
+                    + ampAdjust.getRotation().getRadians()
+                    + noteAdjust.getRotation().getRadians()),
             gyroAngle);
 
     return speeds;
@@ -391,7 +388,8 @@ public class Swerve extends SubsystemBase implements Logged {
   }
 
   public Rotation2d getWrappedGyroAngle() {
-    return Rotation2d.fromRadians((this.getGyroAngle().getRadians() % (Math.PI * 2.0) + (Math.PI * 2.0)) % (Math.PI * 2.0));
+    return Rotation2d.fromRadians(
+        (this.getGyroAngle().getRadians() % (Math.PI * 2.0) + (Math.PI * 2.0)) % (Math.PI * 2.0));
   }
 
   public Command fieldOrientedCommand(
