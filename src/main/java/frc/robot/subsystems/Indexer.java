@@ -113,6 +113,10 @@ public class Indexer extends SubsystemBase implements Logged {
         .onlyWhile(() -> !topNoteDetector.get());
   }
 
+  public Command reverseIndexerCommand(Measure<Velocity<Angle>> topReverseSpeed, Measure<Velocity<Angle>> bottomReverseSpeed) {
+    return Commands.runOnce(() -> this.setVelocity(topReverseSpeed, bottomReverseSpeed), this);
+  }
+
   public Command alignForShot() {
     return Commands.sequence(
         Commands.runOnce(

@@ -18,6 +18,9 @@ public class Constants {
     public static final Measure<Distance> WIDTH = Inches.of(26.0);
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
 
+    public static final Measure<Distance> BUMPER_WIDTH = Inches.of(39.250);
+    public static final Measure<Distance> BUMPER_LENGTH = Inches.of(39.250);
+
     public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
 
     public static final Measure<Time> CAN_TIMEOUT = Milliseconds.of(20);
@@ -30,6 +33,8 @@ public class Constants {
     public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
 
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
+
+    public static final Measure<Distance> SUBWOOFER_EXTENSION  = Inches.of(36.125);
   }
 
   public static class IndexerConstants {
@@ -52,6 +57,12 @@ public class Constants {
 
     public static final Measure<Velocity<Angle>> TOP_SHOOTING_SPEED = RPM.of(600);
     public static final Measure<Velocity<Angle>> BOTTOM_SHOOTING_SPEED = RPM.of(1200);
+
+    public static final Measure<Velocity<Angle>> TOP_REVERSE_SPEED = RPM.of(-200);
+    public static final Measure<Velocity<Angle>> BOTTOM_REVERSE_SPEED = RPM.of(-400);
+
+    public static final Measure<Velocity<Angle>> TOP_MOTOR_STOP = RPM.of(0);
+    public static final Measure<Velocity<Angle>> BOTTOM_MOTOR_STOP = RPM.of(0);
 
     public static final double TOP_GEAR_RATIO = 1.0 / 27.0;
     public static final double BOTTOM_GEAR_RATIO = 1.0 / 27.0;
@@ -115,8 +126,20 @@ public class Constants {
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
 
-    public static final double AUTO_ANGLE_SLOPE = 0.0;
-    public static final double Y_INTERCEPT = 0.0;
+    public static final double AUTO_ANGLE_SLOPE_POSITION_ONE = 0.0;
+    public static final double Y_INTERCEPT_POSITON_ONE = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_TWO = 0.0;
+    public static final double Y_INTERCEPT_POSITON_TWO = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_THREE = 0.0;
+    public static final double Y_INTERCEPT_POSITON_THREE = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_FOUR = 0.0;
+    public static final double Y_INTERCEPT_POSITON_FOUR = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_FIVE = 0.0;
+    public static final double Y_INTERCEPT_POSITON_FIVE = 0.0;
 
     public static final Rotation2d REST_POSITION = Rotation2d.fromDegrees(21);
   }
@@ -229,7 +252,11 @@ public class Constants {
 
   public static class IntakeConstants {
 
-    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(0);
+    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(600);
+
+    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_REVERSE_SETPOINT = RPM.of(-600);
+
+    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_STOP = RPM.of(0);
 
     public static final int INTAKE_MOTOR_PORT = 8;
 
