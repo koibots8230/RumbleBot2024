@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Indexer;
@@ -58,8 +59,8 @@ public class RobotContainer implements Logged {
 
   private void configureBindings() {
 
-    Trigger shoot = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
-    shoot.onTrue(
+    Trigger shootSpeaker = new Trigger(() -> controller.getLeftTriggerAxis() > 0.15);
+    shootSpeaker.onTrue(
         ScoringCommands.shootSpeaker(
             elevator,
             indexer,
@@ -68,6 +69,16 @@ public class RobotContainer implements Logged {
             swerve,
             controller::getLeftY,
             controller::getLeftX));
+
+    Trigger scoreAmp = new Trigger(() -> controller.getLeftBumper());
+    scoreAmp.onTrue(ScoringCommands.scoreAmp(elevator, indexer));
+
+    Trigger intakeNote = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
+    intakeNote.onTrue(IntakeCommands.intakeNote(intake, indexer));
+
+    Trigger reverse = new Trigger(() -> controller.getBButton());
+    reverse.onTrue(IntakeCommands.reverse(intake, indexer));
+    reverse.onFalse(IntakeCommands.stop(intake, indexer));
   }
 
   private void subsystemDefualtCommands() {
