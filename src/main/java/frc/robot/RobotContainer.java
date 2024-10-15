@@ -60,7 +60,15 @@ public class RobotContainer implements Logged {
   private void configureBindings() {
 
     Trigger shootSpeaker = new Trigger(() -> controller.getLeftTriggerAxis() > 0.15);
-    shootSpeaker.onTrue(ScoringCommands.shootSpeaker(elevator, indexer, shooter, shooterPivot, swerve, controller::getLeftY, controller::getLeftX));
+    shootSpeaker.onTrue(
+        ScoringCommands.shootSpeaker(
+            elevator,
+            indexer,
+            shooter,
+            shooterPivot,
+            swerve,
+            controller::getLeftY,
+            controller::getLeftX));
 
     Trigger scoreAmp = new Trigger(() -> controller.getLeftBumper());
     scoreAmp.onTrue(ScoringCommands.scoreAmp(elevator, indexer));

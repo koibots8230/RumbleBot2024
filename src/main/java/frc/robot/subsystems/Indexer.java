@@ -126,7 +126,8 @@ public class Indexer extends SubsystemBase implements Logged {
         Commands.runOnce(() -> setNoteStatus(true)));
   }
 
-  public Command reverseIndexerCommand(Measure<Velocity<Angle>> topReverseSpeed, Measure<Velocity<Angle>> bottomReverseSpeed) {
+  public Command reverseIndexerCommand(
+      Measure<Velocity<Angle>> topReverseSpeed, Measure<Velocity<Angle>> bottomReverseSpeed) {
     return Commands.runOnce(() -> this.setVelocity(topReverseSpeed, bottomReverseSpeed), this);
   }
 

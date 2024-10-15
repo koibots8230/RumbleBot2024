@@ -49,7 +49,7 @@ public class Constants {
     public static final Rotation2d NOTE_ALLOWED_DIRECTION_MARGIN =
         Rotation2d.fromRadians(Math.PI / 3.0);
 
-    public static final Measure<Distance> SUBWOOFER_EXTENSION  = Inches.of(36.125);
+    public static final Measure<Distance> SUBWOOFER_EXTENSION = Inches.of(36.125);
   }
 
   public static class IndexerConstants {

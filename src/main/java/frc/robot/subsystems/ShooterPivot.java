@@ -100,34 +100,34 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
   }
 
   public Rotation2d getEstimatedAngle(double distance) {
-    if (distance < 1.5){
+    if (distance < 1.5) {
       double angle =
-              Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_ONE * distance
-                      + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_ONE;
+          Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_ONE * distance
+              + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_ONE;
       return Rotation2d.fromDegrees(angle);
     }
-    if(distance < 2.5){
+    if (distance < 2.5) {
       double angle =
-              Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_TWO * distance
-                      + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_TWO;
+          Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_TWO * distance
+              + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_TWO;
       return Rotation2d.fromDegrees(angle);
     }
-    if(distance < 3.5){
+    if (distance < 3.5) {
       double angle =
-              Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_THREE * distance
-                      + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_THREE;
+          Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_THREE * distance
+              + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_THREE;
       return Rotation2d.fromDegrees(angle);
     }
-    if(distance < 4.5){
+    if (distance < 4.5) {
       double angle =
-              Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_FOUR * distance
-                      + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_FOUR;
+          Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_FOUR * distance
+              + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_FOUR;
       return Rotation2d.fromDegrees(angle);
     }
-    if(distance > 4.5){
+    if (distance > 4.5) {
       double angle =
-              Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_FIVE * distance
-                      + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_FIVE;
+          Constants.ShooterPivotConstants.AUTO_ANGLE_SLOPE_POSITION_FIVE * distance
+              + Constants.ShooterPivotConstants.Y_INTERCEPT_POSITON_FIVE;
       return Rotation2d.fromDegrees(angle);
     }
     return new Rotation2d(0);
