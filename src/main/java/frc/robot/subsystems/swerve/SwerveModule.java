@@ -6,6 +6,7 @@ import com.revrobotics.AbsoluteEncoder;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkFlex;
 import com.revrobotics.CANSparkLowLevel.MotorType;
+import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
@@ -56,12 +57,17 @@ public class SwerveModule implements Logged {
     turnMotor = new CANSparkMax(turnID, MotorType.kBrushless);
 
     turnMotor.restoreFactoryDefaults();
+    turnMotor.clearFaults();
 
     turnMotor.setSmartCurrentLimit(SwerveConstants.TURN_MOTOR_CONFIG.currentLimit);
     turnMotor.setInverted(SwerveConstants.TURN_MOTOR_CONFIG.inverted);
     turnMotor.setIdleMode(SwerveConstants.TURN_MOTOR_CONFIG.idleMode);
     turnMotor.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
     turnMotor.setCANTimeout((int) RobotConstants.CAN_TIMEOUT.in(Milliseconds));
+
+    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 32767);
+    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 32767);
+    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 3);
 
     turnEncoder = turnMotor.getAbsoluteEncoder();
 
@@ -96,11 +102,20 @@ public class SwerveModule implements Logged {
 
     driveMotor = new CANSparkFlex(driveID, MotorType.kBrushless);
 
+    driveMotor.restoreFactoryDefaults();
+    driveMotor.clearFaults();
+
     driveMotor.setSmartCurrentLimit(SwerveConstants.DRIVE_MOTOR_CONFIG.currentLimit);
     driveMotor.setInverted(SwerveConstants.DRIVE_MOTOR_CONFIG.inverted);
     driveMotor.setIdleMode(SwerveConstants.DRIVE_MOTOR_CONFIG.idleMode);
     driveMotor.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
     driveMotor.setCANTimeout((int) RobotConstants.CAN_TIMEOUT.in(Milliseconds));
+
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 3);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 32767);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 32767);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 32767);
+    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 32767);
 
     driveEncoder = driveMotor.getEncoder();
 
@@ -129,8 +144,8 @@ public class SwerveModule implements Logged {
   }
 
   public void setState(SwerveModuleState state) {
-    SwerveModuleState optimizedState = SwerveModuleState.optimize(state, turnPosition);
-
+    // SwerveModuleState optimizedState = SwerveModuleState.optimize(state, turnPosition);
+    SwerveModuleState optimizedState = state;
     optimizedState.speedMetersPerSecond =
         optimizedState.speedMetersPerSecond * optimizedState.angle.minus(turnPosition).getCos();
 
@@ -141,8 +156,12 @@ public class SwerveModule implements Logged {
 
     turnSetpointState = turnProfile.calculate(0.02, turnSetpointState, turnGoalState);
 
+    System.out.println(optimizedState.angle.getRadians() + angleOffset.getRadians());
+    System.out.println(turnEncoder.getPosition());
+    System.out.println(turnPosition.getRadians());
+
     turnPID.setReference(
-        optimizedState.angle.getRadians(),
+        optimizedState.angle.getRadians() + angleOffset.getRadians(),
         ControlType.kPosition,
         0,
         turnFF.calculate(turnSetpointState.velocity));
@@ -153,7 +172,7 @@ public class SwerveModule implements Logged {
   public void periodic() {
     turnSetpoint = Rotation2d.fromRadians(turnGoalState.position);
 
-    turnPosition = Rotation2d.fromRadians(turnEncoder.getPosition() + angleOffset.getRadians());
+    turnPosition = Rotation2d.fromRadians(turnEncoder.getPosition() - angleOffset.getRadians());
     turnVelocity = turnEncoder.getVelocity();
 
     turnCurrent = turnMotor.getOutputCurrent();
