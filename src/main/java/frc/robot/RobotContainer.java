@@ -4,10 +4,15 @@
 
 package frc.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
@@ -33,6 +38,8 @@ public class RobotContainer implements Logged {
   private final Indexer indexer;
   private final Intake intake;
 
+  private final SendableChooser<Command> autoSendableChooser;
+
   public RobotContainer(boolean isReal) {
     controller = new XboxController(0);
 
@@ -52,6 +59,13 @@ public class RobotContainer implements Logged {
     intake = new Intake();
 
     Monologue.setupMonologue(this, "Robot", false, false);
+
+    autoSendableChooser = AutoBuilder.buildAutoChooser();
+    SmartDashboard.putData("Auto Chooser", autoSendableChooser);
+
+    NamedCommands.registerCommand("Score Amp", ScoringCommands.scoreAmp(elevator, indexer));
+    NamedCommands.registerCommand("Shoot Speaker", ScoringCommands.shootSpeaker(elevator, indexer, shooter, shooterPivot, swerve, controller::getLeftY, controller::getLeftX));
+    NamedCommands.registerCommand("Intake Piece", intake.setVelocity(IntakeConstants.INTAKE_MOTOR_SETPOINT));
 
     configureBindings();
     subsystemDefualtCommands();
@@ -98,6 +112,6 @@ public class RobotContainer implements Logged {
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return autoSendableChooser.getSelected();
   }
 }

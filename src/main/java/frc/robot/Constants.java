@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
+import com.pathplanner.lib.util.ReplanningConfig;
 import com.revrobotics.CANSparkBase.IdleMode;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -263,6 +265,26 @@ public class Constants {
     public static final int BACK_RIGHT_TURN_ID = 8;
 
     public static final int GYRO_ID = 18;
+
+    // ====================AUTO====================
+    public static final Measure<Distance> REPLANNING_ERROR_THRESHOLD = Meters.of(1);
+    public static final Measure<Distance> REPLANNING_ERROR_SPIKE_THRESHOLD = Meters.of(1);
+
+    public static final HolonomicPathFollowerConfig SWERVE_CONFIG =
+        new HolonomicPathFollowerConfig(
+            SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond), 
+            Math.sqrt(
+                Math.pow(RobotConstants.LENGTH.in(Meters), 2)
+                + Math.pow(RobotConstants.WIDTH.in(Meters), 2)
+            ), 
+            new ReplanningConfig(
+                false,
+                true,
+                REPLANNING_ERROR_THRESHOLD.in(Meters),
+                REPLANNING_ERROR_SPIKE_THRESHOLD.in(Meters)
+            ));
+    public static final PIDGains AUTO_TRANSLATION_PID = new PIDGains.Builder().kp(0).ki(0).kd(0).build();
+    public static final PIDGains AUTO_ROTATION_PID = new PIDGains.Builder().kp(0).ki(0).kd(0).build();
   }
 
   public static class IntakeConstants {
