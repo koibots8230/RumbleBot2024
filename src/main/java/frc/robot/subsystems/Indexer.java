@@ -42,6 +42,8 @@ public class Indexer extends SubsystemBase implements Logged {
   @Log private double bottomCurrent;
   @Log private double bottomAppliedVoltage;
 
+  private boolean hasNote;
+
   public Indexer() {
     topMotor =
         new CANSparkMax(IndexerConstants.TOP_MOTOR_PORT, CANSparkLowLevel.MotorType.kBrushless);
@@ -103,14 +105,30 @@ public class Indexer extends SubsystemBase implements Logged {
     bottomController.setReference(bottomSpeed.in(RPM), ControlType.kVelocity);
   }
 
+  private void setNoteStatus(boolean hasNote) {
+    this.hasNote = hasNote;
+  }
+
+  public boolean hasNote() {
+    return hasNote;
+  }
+
   public Command intakeCommand() {
-    return Commands.startEnd(
-            () ->
-                this.setVelocity(
-                    IndexerConstants.TOP_INTAKING_SPEED, IndexerConstants.BOTTOM_INTAKING_SPEED),
-            () -> this.setVelocity(RPM.of(0), RPM.of(0)),
-            this)
-        .onlyWhile(() -> !topNoteDetector.get());
+    return Commands.sequence(
+        Commands.startEnd(
+                () ->
+                    this.setVelocity(
+                        IndexerConstants.TOP_INTAKING_SPEED,
+                        IndexerConstants.BOTTOM_INTAKING_SPEED),
+                () -> this.setVelocity(RPM.of(0), RPM.of(0)),
+                this)
+            .onlyWhile(() -> !topNoteDetector.get()),
+        Commands.runOnce(() -> setNoteStatus(true)));
+  }
+
+  public Command reverseIndexerCommand(
+      Measure<Velocity<Angle>> topReverseSpeed, Measure<Velocity<Angle>> bottomReverseSpeed) {
+    return Commands.runOnce(() -> this.setVelocity(topReverseSpeed, bottomReverseSpeed), this);
   }
 
   public Command alignForShot() {

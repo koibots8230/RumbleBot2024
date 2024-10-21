@@ -20,6 +20,9 @@ public class Constants {
     public static final Measure<Distance> WIDTH = Inches.of(26.0);
     public static final Measure<Distance> LENGTH = Inches.of(26.0);
 
+    public static final Measure<Distance> BUMPER_WIDTH = Inches.of(39.250);
+    public static final Measure<Distance> BUMPER_LENGTH = Inches.of(39.250);
+
     public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
 
     public static final Measure<Time> CAN_TIMEOUT = Milliseconds.of(20);
@@ -28,10 +31,27 @@ public class Constants {
   }
 
   public static class FieldConstants {
-
-    public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
-
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
+
+    public static final Pose2d BLUE_AMP_POSE =
+        new Pose2d(1.88, 7.73, Rotation2d.fromRadians(-Math.PI / 2));
+    public static final Pose2d RED_AMP_POSE =
+        new Pose2d(14.70, 7.73, Rotation2d.fromRadians((3 * Math.PI) / 2));
+  }
+
+  public static class AlignConstants {
+    public static final PIDGains ASSIST_GAINS = new PIDGains.Builder().kp(10).build();
+
+    public static final Measure<Distance> AMP_MIN_DISTANCE = Meters.of(0.5);
+    public static final Rotation2d AMP_ALLOWED_ANGLE_MARGIN = new Rotation2d(Math.PI / 6.0);
+
+    public static final Measure<Distance> NOTE_MIN_DISTANCE = Meters.of(0.75);
+    public static final Rotation2d NOTE_ALLOWED_ANGLE_MARGIN =
+        Rotation2d.fromRadians(Math.PI / 4.0);
+    public static final Rotation2d NOTE_ALLOWED_DIRECTION_MARGIN =
+        Rotation2d.fromRadians(Math.PI / 3.0);
+
+    public static final Measure<Distance> SUBWOOFER_EXTENSION = Inches.of(36.125);
   }
 
   public static class IndexerConstants {
@@ -55,6 +75,12 @@ public class Constants {
     public static final Measure<Velocity<Angle>> TOP_SHOOTING_SPEED = RPM.of(600);
     public static final Measure<Velocity<Angle>> BOTTOM_SHOOTING_SPEED = RPM.of(1200);
 
+    public static final Measure<Velocity<Angle>> TOP_REVERSE_SPEED = RPM.of(-200);
+    public static final Measure<Velocity<Angle>> BOTTOM_REVERSE_SPEED = RPM.of(-400);
+
+    public static final Measure<Velocity<Angle>> TOP_MOTOR_STOP = RPM.of(0);
+    public static final Measure<Velocity<Angle>> BOTTOM_MOTOR_STOP = RPM.of(0);
+
     public static final double TOP_GEAR_RATIO = 1.0 / 27.0;
     public static final double BOTTOM_GEAR_RATIO = 1.0 / 27.0;
 
@@ -63,8 +89,8 @@ public class Constants {
     public static final MotorConfig BOTTOM_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(30).build();
 
-    public static final int TOP_MOTOR_PORT = 5;
-    public static final int BOTTOM_MOTOR_PORT = 6;
+    public static final int TOP_MOTOR_PORT = 10;
+    public static final int BOTTOM_MOTOR_PORT = 11;
 
     public static final int TOP_NOTE_DETECTOR_PORT = 0;
     public static final int BOTTOM_NOTE_DETECTOR_PORT = 1;
@@ -99,14 +125,14 @@ public class Constants {
     public static final MotorConfig RIGHT_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(60).build();
 
-    public static final int LEFT_MOTOR_PORT = 3;
-    public static final int RIGHT_MOTOR_PORT = 4;
+    public static final int LEFT_MOTOR_PORT = 16;
+    public static final int RIGHT_MOTOR_PORT = 17;
   }
 
   //  TODO add actual values into here
   public static class ShooterPivotConstants {
 
-    public static final int SHOOTER_PIVOT_MOTER = 0;
+    public static final int SHOOTER_PIVOT_MOTER = 15;
 
     public static final Rotation2d MAX_VELOCITY = Rotation2d.fromDegrees(30);
     public static final Rotation2d MAX_ACCLERATION = Rotation2d.fromDegrees(15);
@@ -117,8 +143,20 @@ public class Constants {
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();
 
-    public static final double AUTO_ANGLE_SLOPE = 0.0;
-    public static final double Y_INTERCEPT = 0.0;
+    public static final double AUTO_ANGLE_SLOPE_POSITION_ONE = 0.0;
+    public static final double Y_INTERCEPT_POSITON_ONE = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_TWO = 0.0;
+    public static final double Y_INTERCEPT_POSITON_TWO = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_THREE = 0.0;
+    public static final double Y_INTERCEPT_POSITON_THREE = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_FOUR = 0.0;
+    public static final double Y_INTERCEPT_POSITON_FOUR = 0.0;
+
+    public static final double AUTO_ANGLE_SLOPE_POSITION_FIVE = 0.0;
+    public static final double Y_INTERCEPT_POSITON_FIVE = 0.0;
 
     public static final Rotation2d REST_POSITION = Rotation2d.fromDegrees(21);
   }
@@ -156,9 +194,9 @@ public class Constants {
 
     // 6
 
-    public static final int TOP_SHOOTER_PORT = 1;
+    public static final int TOP_SHOOTER_PORT = 13;
 
-    public static final int BOTTOM_SHOOTER_PORT = 2;
+    public static final int BOTTOM_SHOOTER_PORT = 14;
   }
 
   public static class SwerveConstants {
@@ -182,11 +220,11 @@ public class Constants {
 
     public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0).build();
     public static final FeedforwardGains DRIVE_FF_GAINS =
-        new FeedforwardGains.Builder().kv(0).build();
+        new FeedforwardGains.Builder().kv(0.1).build();
 
-    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0.4).build();
     public static final FeedforwardGains TURN_FF_GAINS =
-        new FeedforwardGains.Builder().ks(0).kv(0).build();
+        new FeedforwardGains.Builder().ks(0.3).kv(0.35).build();
 
     public static final PIDGains ANGLE_PID_GAINS = new PIDGains.Builder().kp(30).kd(0).build();
 
@@ -197,10 +235,10 @@ public class Constants {
 
     public static final Rotation2d[] ANGLE_OFFSETS =
         new Rotation2d[] {
-          Rotation2d.fromRadians((3 * Math.PI) / 2),
+          Rotation2d.fromRadians((3 * Math.PI) / 2.0),
           Rotation2d.fromRadians(Math.PI),
           Rotation2d.fromRadians(0),
-          Rotation2d.fromRadians(Math.PI / 2)
+          Rotation2d.fromRadians(Math.PI / 2.0)
         };
 
     private static final int DRIVING_PINION_TEETH = 13;
@@ -217,16 +255,16 @@ public class Constants {
     public static final Measure<Velocity<Distance>> DRIVE_ENCODER_VELOCITY_FACTOR =
         MetersPerSecond.of(((WHEELS.radius.in(Meters) * 2 * Math.PI) / DRIVE_GEAR_RATIO) / 60.0);
 
-    public static final int FRONT_LEFT_DRIVE_ID = 36;
-    public static final int FRONT_LEFT_TURN_ID = 31;
-    public static final int FRONT_RIGHT_DRIVE_ID = 37;
-    public static final int FRONT_RIGHT_TURN_ID = 38;
-    public static final int BACK_LEFT_DRIVE_ID = 34;
-    public static final int BACK_LEFT_TURN_ID = 35;
-    public static final int BACK_RIGHT_DRIVE_ID = 32;
-    public static final int BACK_RIGHT_TURN_ID = 33;
+    public static final int FRONT_LEFT_DRIVE_ID = 1;
+    public static final int FRONT_LEFT_TURN_ID = 2;
+    public static final int FRONT_RIGHT_DRIVE_ID = 3;
+    public static final int FRONT_RIGHT_TURN_ID = 4;
+    public static final int BACK_LEFT_DRIVE_ID = 5;
+    public static final int BACK_LEFT_TURN_ID = 6;
+    public static final int BACK_RIGHT_DRIVE_ID = 7;
+    public static final int BACK_RIGHT_TURN_ID = 8;
 
-    public static final int GYRO_ID = 24;
+    public static final int GYRO_ID = 18;
 
     // ====================AUTO====================
     public static final Measure<Distance> REPLANNING_ERROR_THRESHOLD = Meters.of(1);
@@ -251,9 +289,13 @@ public class Constants {
 
   public static class IntakeConstants {
 
-    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(0);
+    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(600);
 
-    public static final int INTAKE_MOTOR_PORT = 8;
+    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_REVERSE_SETPOINT = RPM.of(-600);
+
+    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_STOP = RPM.of(0);
+
+    public static final int INTAKE_MOTOR_PORT = 9;
 
     public static final double INTAKE_FEED_FORWARD = 0.0;
 

@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.commands.IntakeCommands;
 import frc.robot.commands.ScoringCommands;
 import frc.robot.subsystems.Elevator;
 import frc.robot.subsystems.Indexer;
@@ -21,6 +22,7 @@ import frc.robot.subsystems.Shooter;
 import frc.robot.subsystems.ShooterPivot;
 import frc.robot.subsystems.Vision;
 import frc.robot.subsystems.swerve.Swerve;
+import java.util.ArrayList;
 import monologue.Logged;
 import monologue.Monologue;
 
@@ -71,8 +73,26 @@ public class RobotContainer implements Logged {
 
   private void configureBindings() {
 
-    Trigger shoot = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
-    shoot.onTrue(ScoringCommands.shootSpeaker(elevator, indexer, shooter, shooterPivot, swerve, controller::getLeftY, controller::getLeftX));
+    Trigger shootSpeaker = new Trigger(() -> controller.getLeftTriggerAxis() > 0.15);
+    shootSpeaker.onTrue(
+        ScoringCommands.shootSpeaker(
+            elevator,
+            indexer,
+            shooter,
+            shooterPivot,
+            swerve,
+            controller::getLeftY,
+            controller::getLeftX));
+
+    Trigger scoreAmp = new Trigger(() -> controller.getLeftBumper());
+    scoreAmp.onTrue(ScoringCommands.scoreAmp(elevator, indexer));
+
+    Trigger intakeNote = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
+    intakeNote.onTrue(IntakeCommands.intakeNote(intake, indexer));
+
+    Trigger reverse = new Trigger(() -> controller.getBButton());
+    reverse.onTrue(IntakeCommands.reverse(intake, indexer));
+    reverse.onFalse(IntakeCommands.stop(intake, indexer));
   }
 
   private void subsystemDefualtCommands() {
@@ -84,7 +104,11 @@ public class RobotContainer implements Logged {
 
     swerve.setDefaultCommand(
         swerve.fieldOrientedCommand(
-            controller::getLeftY, controller::getLeftX, controller::getRightX));
+            controller::getLeftY,
+            controller::getLeftX,
+            controller::getRightX,
+            indexer::hasNote,
+            () -> new ArrayList<>()));
   }
 
   public Command getAutonomousCommand() {

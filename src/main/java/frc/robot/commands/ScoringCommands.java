@@ -1,11 +1,9 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.*;
 import frc.robot.subsystems.swerve.Swerve;
 import java.util.function.DoubleSupplier;
@@ -38,8 +36,6 @@ public class ScoringCommands {
                 shooterPivot.autoSetAngle(swerve.getOdometryPose())),
             indexer.shootSpeaker(),
             Commands.parallel(shooter.ShooterRestCommand())),
-        swerve.fieldOrientedWhilePointingCommand(
-            leftStick,
-            rightStick));
+        swerve.fieldOrientedWhilePointingCommand(leftStick, rightStick));
   }
 }
