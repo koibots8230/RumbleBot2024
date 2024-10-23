@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -64,8 +63,18 @@ public class RobotContainer implements Logged {
     SmartDashboard.putData("Auto Chooser", autoSendableChooser);
 
     NamedCommands.registerCommand("Score Amp", ScoringCommands.scoreAmp(elevator, indexer));
-    NamedCommands.registerCommand("Shoot Speaker", ScoringCommands.shootSpeaker(elevator, indexer, shooter, shooterPivot, swerve, controller::getLeftY, controller::getLeftX));
-    NamedCommands.registerCommand("Intake Piece", intake.setVelocity(IntakeConstants.INTAKE_MOTOR_SETPOINT));
+    NamedCommands.registerCommand(
+        "Shoot Speaker",
+        ScoringCommands.shootSpeaker(
+            elevator,
+            indexer,
+            shooter,
+            shooterPivot,
+            swerve,
+            controller::getLeftY,
+            controller::getLeftX));
+    NamedCommands.registerCommand(
+        "Intake Piece", intake.setVelocity(IntakeConstants.INTAKE_MOTOR_SETPOINT));
 
     configureBindings();
     subsystemDefualtCommands();
@@ -73,7 +82,7 @@ public class RobotContainer implements Logged {
 
   private void configureBindings() {
 
-    Trigger shootSpeaker = new Trigger(() -> controller.getLeftTriggerAxis() > 0.15);
+    /*Trigger shootSpeaker = new Trigger(() -> controller.getLeftTriggerAxis() > 0.15);
     shootSpeaker.onTrue(
         ScoringCommands.shootSpeaker(
             elevator,
@@ -84,15 +93,28 @@ public class RobotContainer implements Logged {
             controller::getLeftY,
             controller::getLeftX));
 
-    Trigger scoreAmp = new Trigger(() -> controller.getLeftBumper());
-    scoreAmp.onTrue(ScoringCommands.scoreAmp(elevator, indexer));
+     */
 
-    Trigger intakeNote = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
-    intakeNote.onTrue(IntakeCommands.intakeNote(intake, indexer));
+    /* Trigger scoreAmp = new Trigger(() -> controller.getLeftBumper());
+    scoreAmp.onTrue(ScoringCommands.scoreAmp(elevator, indexer)); */
+
+    /*Trigger intakeNote = new Trigger(() -> controller.getRightTriggerAxis() > 0.15);
+    intakeNote.onTrue(IntakeCommands.intakeNote(intake, indexer));*/
 
     Trigger reverse = new Trigger(() -> controller.getBButton());
     reverse.onTrue(IntakeCommands.reverse(intake, indexer));
     reverse.onFalse(IntakeCommands.stop(intake, indexer));
+
+    Trigger shooter_tune = new Trigger(() -> controller.getRightTriggerAxis() > .15);
+    shooter_tune.onTrue(
+        shooter.setVelocityCommand(
+            Constants.ShooterConstants.RIGHT_MOTOR_SETPOINT_SPEAKER,
+            Constants.ShooterConstants.LEFT_MOTOR_SETPOINT_SPEAKER));
+    shooter_tune.onFalse(shooter.ShooterRestCommand());
+
+    /* Trigger intake_tune = new Trigger(() -> controller.getLeftTriggerAxis() > 0.15);
+    intake_tune.onTrue(intake.setVelocity(IntakeConstants.INTAKE_MOTOR_SETPOINT));
+    intake_tune.onFalse(IntakeCommands.stop(intake, indexer));*/
   }
 
   private void subsystemDefualtCommands() {
@@ -100,7 +122,7 @@ public class RobotContainer implements Logged {
     shooterPivot.setDefaultCommand(
         shooterPivot.setPositionCommand(Constants.ShooterPivotConstants.REST_POSITION));
 
-    shooter.setDefaultCommand(shooter.setVelocityCommand(100, 100));
+    // shooter.setDefaultCommand(shooter.setVelocityCommand(100, 100));
 
     swerve.setDefaultCommand(
         swerve.fieldOrientedCommand(
