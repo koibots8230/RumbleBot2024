@@ -33,6 +33,8 @@ public class Constants {
   public static class FieldConstants {
     public static final Pose2d BLUE_SPEAKER_POSE = new Pose2d(0, 5.55, new Rotation2d());
 
+    public static final Pose2d RED_SPEAKER_POSE = new Pose2d(16.58, 5.55, new Rotation2d(Math.PI));
+
     public static final Pose2d BLUE_AMP_POSE =
         new Pose2d(1.88, 7.73, Rotation2d.fromRadians(-Math.PI / 2));
     public static final Pose2d RED_AMP_POSE =
@@ -164,17 +166,18 @@ public class Constants {
   public static class ShooterConstants {
     // 1
 
-    public static final double TOP_MOTOR_SETPOINT_SPEAKER = 600; // todo set actaul val for setpoint
-    public static final double BOTTOM_MOTOR_SETPOINT_SPEAKER =
-        1000; // todo set actaul val for setpoint
+    public static final double RIGHT_MOTOR_SETPOINT_SPEAKER =
+        2500;
+    public static final double LEFT_MOTOR_SETPOINT_SPEAKER =
+        2500;
 
     // 2
 
     public static final double REST_SETPOINT = 500;
 
-    public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.008).build();
+    public static final PIDGains PID_GAINS = new PIDGains.Builder().kp(0.2).build();
     public static final FeedforwardGains FEEDFORWARD_GAINS =
-        new FeedforwardGains.Builder().kv(0.0021).build();
+        new FeedforwardGains.Builder().kv(0.01).build();
 
     // 3
 
@@ -183,20 +186,20 @@ public class Constants {
     // 4
 
     public static final MotorConfig TOP_MOTOR_CONFIG =
-        new MotorConfig.Builder().inverted(true).currentLimit(60).idleMode(IdleMode.kBrake).build();
+        new MotorConfig.Builder().inverted(true).currentLimit(60).idleMode(IdleMode.kCoast).build();
 
     public static final MotorConfig BOTTOM_MOTOR_CONFIG =
         new MotorConfig.Builder()
             .inverted(false)
             .currentLimit(60)
-            .idleMode(IdleMode.kBrake)
+            .idleMode(IdleMode.kCoast)
             .build();
 
     // 6
 
-    public static final int TOP_SHOOTER_PORT = 13;
+    public static final int RIGHT_SHOOTER_PORT = 13;
 
-    public static final int BOTTOM_SHOOTER_PORT = 14;
+    public static final int LEFT_SHOOTER_PORT = 14;
   }
 
   public static class SwerveConstants {
@@ -272,19 +275,19 @@ public class Constants {
 
     public static final HolonomicPathFollowerConfig SWERVE_CONFIG =
         new HolonomicPathFollowerConfig(
-            SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond), 
+            SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond),
             Math.sqrt(
                 Math.pow(RobotConstants.LENGTH.in(Meters), 2)
-                + Math.pow(RobotConstants.WIDTH.in(Meters), 2)
-            ), 
+                    + Math.pow(RobotConstants.WIDTH.in(Meters), 2)),
             new ReplanningConfig(
                 false,
                 true,
                 REPLANNING_ERROR_THRESHOLD.in(Meters),
-                REPLANNING_ERROR_SPIKE_THRESHOLD.in(Meters)
-            ));
-    public static final PIDGains AUTO_TRANSLATION_PID = new PIDGains.Builder().kp(0).ki(0).kd(0).build();
-    public static final PIDGains AUTO_ROTATION_PID = new PIDGains.Builder().kp(0).ki(0).kd(0).build();
+                REPLANNING_ERROR_SPIKE_THRESHOLD.in(Meters)));
+    public static final PIDGains AUTO_TRANSLATION_PID =
+        new PIDGains.Builder().kp(0).ki(0).kd(0).build();
+    public static final PIDGains AUTO_ROTATION_PID =
+        new PIDGains.Builder().kp(0).ki(0).kd(0).build();
   }
 
   public static class IntakeConstants {
@@ -297,7 +300,7 @@ public class Constants {
 
     public static final int INTAKE_MOTOR_PORT = 9;
 
-    public static final double INTAKE_FEED_FORWARD = 0.0;
+    public static final double INTAKE_FEED_FORWARD = 0.003;
 
     public static final PIDGains PID_GAINS =
         new PIDGains.Builder().kp(0.0).ki(0.0).kf(0.0).kd(0.0).build();

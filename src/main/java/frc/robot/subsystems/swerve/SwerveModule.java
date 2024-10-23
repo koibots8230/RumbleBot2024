@@ -156,10 +156,6 @@ public class SwerveModule implements Logged {
 
     turnSetpointState = turnProfile.calculate(0.02, turnSetpointState, turnGoalState);
 
-    System.out.println(optimizedState.angle.getRadians() + angleOffset.getRadians());
-    System.out.println(turnEncoder.getPosition());
-    System.out.println(turnPosition.getRadians());
-
     turnPID.setReference(
         optimizedState.angle.getRadians() + angleOffset.getRadians(),
         ControlType.kPosition,

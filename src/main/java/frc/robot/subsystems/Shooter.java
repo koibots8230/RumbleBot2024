@@ -46,21 +46,14 @@ public class Shooter extends SubsystemBase implements Logged {
   @Log private double topAppliedVoltage;
   @Log private double bottomAppliedVoltage;
 
-  // for encoder set average deapth and set average meserment piroed 2,16
-  // respectivly
+  private boolean shooterAtRest;
 
   public Shooter(boolean isReal) {
-    // TODO change how objects get constructed here. Real objects should always be
-    // constructed. Real
-    // objects should have simple names that don't specify that they are real.
-    // TODO Simulated objects should be constructed in the if isReal else blocks. If
-    // it is
-    // simulated, construct simulated objects. If it is real, simulated objects
-    // should be set toz
-    // null.
 
-    rightMotor = new CANSparkMax(ShooterConstants.TOP_SHOOTER_PORT, MotorType.kBrushless);
-    leftMotor = new CANSparkMax(ShooterConstants.BOTTOM_SHOOTER_PORT, MotorType.kBrushless);
+    shooterAtRest = false;
+
+    rightMotor = new CANSparkMax(ShooterConstants.RIGHT_SHOOTER_PORT, MotorType.kBrushless);
+    leftMotor = new CANSparkMax(ShooterConstants.LEFT_SHOOTER_PORT, MotorType.kBrushless);
     rightController = rightMotor.getPIDController();
     leftController = leftMotor.getPIDController();
     rightEncoder = rightMotor.getEncoder();
@@ -90,18 +83,18 @@ public class Shooter extends SubsystemBase implements Logged {
       rightMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONFIG.idleMode);
 
       leftMotor.restoreFactoryDefaults();
-      rightMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
-      rightMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONFIG.idleMode);
+      leftMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
+      leftMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONFIG.idleMode);
 
       rightController.setP(ShooterConstants.PID_GAINS.kp);
       rightController.setI(ShooterConstants.PID_GAINS.ki);
       rightController.setD(ShooterConstants.PID_GAINS.kd);
-      rightController.setFF(ShooterConstants.PID_GAINS.kf);
+      rightController.setFF(ShooterConstants.FEEDFORWARD_GAINS.kv);
 
       leftController.setP(ShooterConstants.PID_GAINS.kp);
       leftController.setI(ShooterConstants.PID_GAINS.ki);
       leftController.setD(ShooterConstants.PID_GAINS.kd);
-      leftController.setFF(ShooterConstants.PID_GAINS.kf);
+      leftController.setFF(ShooterConstants.FEEDFORWARD_GAINS.kv);
 
       rightEncoder.setMeasurementPeriod(16);
       leftEncoder.setMeasurementPeriod(16);
@@ -114,8 +107,11 @@ public class Shooter extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
     {
-      rightController.setReference(topSetpoint, ControlType.kVelocity);
-      leftController.setReference(bottomSetpoint, ControlType.kVelocity);
+      System.out.println(shooterAtRest);
+      if (!shooterAtRest) {
+        rightController.setReference(topSetpoint, ControlType.kVelocity);
+        leftController.setReference(bottomSetpoint, ControlType.kVelocity);
+      }
       topShoterVelocity = (rightEncoder.getVelocity());
       bottomShoterVelocity = (leftEncoder.getVelocity());
       topAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
@@ -149,6 +145,7 @@ public class Shooter extends SubsystemBase implements Logged {
 
   // TODO are separate velocities needed for top and bottom?
   private void setVelocity(double topSetpoint, double bottomSetpoint) {
+    shooterAtRest = false;
     this.topSetpoint = topSetpoint;
     this.bottomSetpoint = bottomSetpoint;
   }
@@ -156,9 +153,9 @@ public class Shooter extends SubsystemBase implements Logged {
   // TODO this check should use the target set points that are passed into
 
   public boolean checkVelocitySpeaker() {
-    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER)
+    return Math.abs(rightEncoder.getVelocity() - ShooterConstants.RIGHT_MOTOR_SETPOINT_SPEAKER)
             <= ShooterConstants.SHOOTER_RANGE
-        && Math.abs(leftEncoder.getVelocity() - ShooterConstants.BOTTOM_MOTOR_SETPOINT_SPEAKER)
+        && Math.abs(leftEncoder.getVelocity() - ShooterConstants.LEFT_MOTOR_SETPOINT_SPEAKER)
             <= ShooterConstants.SHOOTER_RANGE;
   }
 
@@ -170,6 +167,9 @@ public class Shooter extends SubsystemBase implements Logged {
   }
 
   private void ShooterRest() {
+    shooterAtRest = true;
+    topSetpoint = 0.0;
+    bottomSetpoint = 0.0;
     rightController.setReference(0.0, ControlType.kVoltage);
     leftController.setReference(0.0, ControlType.kVoltage);
   }

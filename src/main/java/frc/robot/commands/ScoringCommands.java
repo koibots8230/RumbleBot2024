@@ -31,8 +31,8 @@ public class ScoringCommands {
             Commands.parallel(
                 indexer.alignForShot(),
                 shooter.setVelocityCommand(
-                    Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER,
-                    Constants.ShooterConstants.TOP_MOTOR_SETPOINT_SPEAKER),
+                    Constants.ShooterConstants.RIGHT_MOTOR_SETPOINT_SPEAKER,
+                    Constants.ShooterConstants.RIGHT_MOTOR_SETPOINT_SPEAKER),
                 shooterPivot.autoSetAngle(swerve.getOdometryPose())),
             indexer.shootSpeaker(),
             Commands.parallel(shooter.ShooterRestCommand())),

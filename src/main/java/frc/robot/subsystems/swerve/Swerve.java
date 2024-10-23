@@ -6,7 +6,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.ctre.phoenix6.hardware.Pigeon2;
 import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -31,7 +30,6 @@ import frc.robot.Constants.AlignConstants;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.RobotConstants;
 import frc.robot.Constants.SwerveConstants;
-
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
@@ -128,11 +126,11 @@ public class Swerve extends SubsystemBase implements Logged {
     }
 
     AutoBuilder.configureHolonomic(
-      this::getOdometryPose,
-      this::resetOdometry,
-      this::getRelativeSpeeds,
-      this::driveRobotRelative,
-      SwerveConstants.SWERVE_CONFIG,
+        this::getOdometryPose,
+        this::resetOdometry,
+        this::getRelativeSpeeds,
+        this::driveRobotRelative,
+        SwerveConstants.SWERVE_CONFIG,
         () -> {
           var alliance = DriverStation.getAlliance();
           if (alliance.isPresent()) {
@@ -140,8 +138,7 @@ public class Swerve extends SubsystemBase implements Logged {
           }
           return false;
         },
-        this
-    );
+        this);
   }
 
   @Override
@@ -189,8 +186,6 @@ public class Swerve extends SubsystemBase implements Logged {
                 + simStoredAngle.getRadians());
 
     gyroAngle = simStoredAngle;
-
-    
   }
 
   private void driveRobotRelative(ChassisSpeeds speeds) {
@@ -379,10 +374,7 @@ public class Swerve extends SubsystemBase implements Logged {
 
   private ChassisSpeeds getRelativeSpeeds() {
     return SwerveConstants.KINEMATICS.toChassisSpeeds(
-      modules[0].getState(), 
-      modules[1].getState(),
-      modules[2].getState(),
-      modules[3].getState());
+        modules[0].getState(), modules[1].getState(), modules[2].getState(), modules[3].getState());
   }
 
   private void setModuleStates(SwerveModuleState[] states) {
@@ -422,7 +414,7 @@ public class Swerve extends SubsystemBase implements Logged {
   }
 
   public void resetOdometry(Pose2d pose2d) {
-    odometry.resetPosition(getGyroAngle(), getModulePositions(),getOdometryPose());
+    odometry.resetPosition(getGyroAngle(), getModulePositions(), getOdometryPose());
   }
 
   public Rotation2d getGyroAngle() {

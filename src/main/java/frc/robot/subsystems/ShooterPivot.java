@@ -4,6 +4,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.CANSparkBase;
 import com.revrobotics.CANSparkBase.ControlType;
 import com.revrobotics.CANSparkLowLevel.MotorType;
 import com.revrobotics.CANSparkMax;
@@ -48,6 +49,8 @@ public class ShooterPivot extends TrapezoidProfileSubsystem implements Logged {
 
     shooterPivotMotor =
         new CANSparkMax(Constants.ShooterPivotConstants.SHOOTER_PIVOT_MOTER, MotorType.kBrushless);
+    shooterPivotMotor.restoreFactoryDefaults();
+    shooterPivotMotor.setIdleMode(CANSparkBase.IdleMode.kBrake); // make a constant
 
     encoder = shooterPivotMotor.getAbsoluteEncoder();
 
