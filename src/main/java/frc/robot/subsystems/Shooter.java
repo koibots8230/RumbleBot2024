@@ -7,6 +7,7 @@ import com.revrobotics.RelativeEncoder;
 import com.revrobotics.SparkPIDController;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.DCMotorSim;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -37,6 +38,8 @@ public class Shooter extends SubsystemBase implements Logged {
   private final SimpleMotorFeedforward topSimFeedforward;
   private final SimpleMotorFeedforward bottomSimFeedforward;
 
+  private final SlewRateLimiter accelerationLimiter;
+
   @Log private double topSetpoint;
   @Log private double bottomSetpoint;
   @Log private double topShoterVelocity;
@@ -51,6 +54,9 @@ public class Shooter extends SubsystemBase implements Logged {
   public Shooter(boolean isReal) {
 
     shooterAtRest = false;
+    
+    // Create an acceleration limiter that ramps up to the Speaker Speed over 3 seconds
+    accelerationLimiter = new SlewRateLimiter(ShooterConstants.RIGHT_MOTOR_SETPOINT_SPEAKER / 60.0 / 3.0);
 
     rightMotor = new CANSparkMax(ShooterConstants.RIGHT_SHOOTER_PORT, MotorType.kBrushless);
     leftMotor = new CANSparkMax(ShooterConstants.LEFT_SHOOTER_PORT, MotorType.kBrushless);
@@ -109,8 +115,8 @@ public class Shooter extends SubsystemBase implements Logged {
     {
       System.out.println(shooterAtRest);
       if (!shooterAtRest) {
-        rightController.setReference(topSetpoint, ControlType.kVelocity);
-        leftController.setReference(bottomSetpoint, ControlType.kVelocity);
+        rightController.setReference(accelerationLimiter.calculate(topSetpoint), ControlType.kVelocity);
+        leftController.setReference(accelerationLimiter.calculate(bottomSetpoint), ControlType.kVelocity);
       }
       topShoterVelocity = (rightEncoder.getVelocity());
       bottomShoterVelocity = (leftEncoder.getVelocity());
