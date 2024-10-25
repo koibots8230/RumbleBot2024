@@ -19,6 +19,8 @@ import monologue.Logged;
 
 public class Shooter extends SubsystemBase implements Logged {
 
+  // FIX THE NAMES
+
   private final CANSparkMax rightMotor;
   private final CANSparkMax leftMotor;
 
@@ -28,23 +30,23 @@ public class Shooter extends SubsystemBase implements Logged {
   private final RelativeEncoder rightEncoder;
   private final RelativeEncoder leftEncoder;
 
-  private final DCMotorSim topSimMotor;
-  private final DCMotorSim bottomSimMotor;
+  private final DCMotorSim rightSimMotor;
+  private final DCMotorSim leftSimMotor;
 
-  private final PIDController topSimPID;
-  private final PIDController bottomSimPID;
+  private final PIDController rightSimPID;
+  private final PIDController leftSimPID;
 
-  private final SimpleMotorFeedforward topSimFeedforward;
-  private final SimpleMotorFeedforward bottomSimFeedforward;
+  private final SimpleMotorFeedforward rightSimFeedforward;
+  private final SimpleMotorFeedforward leftSimFeedforward;
 
-  @Log private double topSetpoint;
-  @Log private double bottomSetpoint;
-  @Log private double topShoterVelocity;
-  @Log private double bottomShoterVelocity;
-  @Log private double bottomShoterCurrent;
-  @Log private double topshoterCurrent;
-  @Log private double topAppliedVoltage;
-  @Log private double bottomAppliedVoltage;
+  @Log private double rightSetpoint;
+  @Log private double leftSetpoint;
+  @Log private double rightShoterVelocity;
+  @Log private double leftShoterVelocity;
+  @Log private double leftShoterCurrent;
+  @Log private double rightshoterCurrent;
+  @Log private double rightAppliedVoltage;
+  @Log private double leftAppliedVoltage;
 
   private boolean shooterAtRest;
 
@@ -59,18 +61,18 @@ public class Shooter extends SubsystemBase implements Logged {
     rightEncoder = rightMotor.getEncoder();
     leftEncoder = leftMotor.getEncoder();
 
-    topSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
-    bottomSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
+    rightSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
+    leftSimMotor = new DCMotorSim(DCMotor.getNEO(1), 1, 1);
 
-    topSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.FEEDFORWARD_GAINS.kv);
-    bottomSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.FEEDFORWARD_GAINS.kv);
+    rightSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.FEEDFORWARD_GAINS.kv);
+    leftSimFeedforward = new SimpleMotorFeedforward(0.0, ShooterConstants.FEEDFORWARD_GAINS.kv);
 
-    topSimPID =
+    rightSimPID =
         new PIDController(
             ShooterConstants.PID_GAINS.kp,
             ShooterConstants.PID_GAINS.ki,
             ShooterConstants.PID_GAINS.kd);
-    bottomSimPID =
+    leftSimPID =
         new PIDController(
             ShooterConstants.PID_GAINS.kp,
             ShooterConstants.PID_GAINS.ki,
@@ -78,13 +80,13 @@ public class Shooter extends SubsystemBase implements Logged {
 
     if (Robot.isReal()) {
       rightMotor.restoreFactoryDefaults();
-      rightMotor.setInverted(ShooterConstants.TOP_MOTOR_CONFIG.inverted);
-      rightMotor.setSmartCurrentLimit(ShooterConstants.TOP_MOTOR_CONFIG.currentLimit);
-      rightMotor.setIdleMode(ShooterConstants.TOP_MOTOR_CONFIG.idleMode);
+      rightMotor.setInverted(ShooterConstants.RIGHT_MOTOR_CONFIG.inverted);
+      rightMotor.setSmartCurrentLimit(ShooterConstants.RIGHT_MOTOR_CONFIG.currentLimit);
+      rightMotor.setIdleMode(ShooterConstants.RIGHT_MOTOR_CONFIG.idleMode);
 
       leftMotor.restoreFactoryDefaults();
-      leftMotor.setSmartCurrentLimit(ShooterConstants.BOTTOM_MOTOR_CONFIG.currentLimit);
-      leftMotor.setIdleMode(ShooterConstants.BOTTOM_MOTOR_CONFIG.idleMode);
+      leftMotor.setSmartCurrentLimit(ShooterConstants.LEFT_MOTOR_CONFIG.currentLimit);
+      leftMotor.setIdleMode(ShooterConstants.LEFT_MOTOR_CONFIG.idleMode);
 
       rightController.setP(ShooterConstants.PID_GAINS.kp);
       rightController.setI(ShooterConstants.PID_GAINS.ki);
@@ -109,45 +111,45 @@ public class Shooter extends SubsystemBase implements Logged {
     {
       System.out.println(shooterAtRest);
       if (!shooterAtRest) {
-        rightController.setReference(topSetpoint, ControlType.kVelocity);
-        leftController.setReference(bottomSetpoint, ControlType.kVelocity);
+        rightController.setReference(rightSetpoint, ControlType.kVelocity);
+        leftController.setReference(leftSetpoint, ControlType.kVelocity);
       }
-      topShoterVelocity = (rightEncoder.getVelocity());
-      bottomShoterVelocity = (leftEncoder.getVelocity());
-      topAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
-      bottomAppliedVoltage = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
-      topshoterCurrent = rightMotor.getOutputCurrent();
-      bottomShoterCurrent = leftMotor.getOutputCurrent();
+      rightShoterVelocity = (rightEncoder.getVelocity());
+      leftShoterVelocity = (leftEncoder.getVelocity());
+      rightAppliedVoltage = rightMotor.getAppliedOutput() * rightMotor.getBusVoltage();
+      leftAppliedVoltage = leftMotor.getAppliedOutput() * leftMotor.getBusVoltage();
+      rightshoterCurrent = rightMotor.getOutputCurrent();
+      leftShoterCurrent = leftMotor.getOutputCurrent();
     }
   }
 
   @Override
   public void simulationPeriodic() {
-    topSimMotor.update(.02);
-    bottomSimMotor.update(.02);
+    rightSimMotor.update(.02);
+    leftSimMotor.update(.02);
 
-    topshoterCurrent = topSimMotor.getCurrentDrawAmps();
-    topShoterVelocity = topSimMotor.getAngularVelocityRPM();
+    rightshoterCurrent = rightSimMotor.getCurrentDrawAmps();
+    rightShoterVelocity = rightSimMotor.getAngularVelocityRPM();
 
-    bottomShoterVelocity = bottomSimMotor.getAngularVelocityRPM();
-    bottomShoterCurrent = bottomSimMotor.getCurrentDrawAmps();
+    leftShoterVelocity = leftSimMotor.getAngularVelocityRPM();
+    leftShoterCurrent = leftSimMotor.getCurrentDrawAmps();
 
-    topAppliedVoltage =
-        topSimPID.calculate(topShoterVelocity, topSetpoint)
-            + topSimFeedforward.calculate(topSetpoint);
-    bottomAppliedVoltage =
-        bottomSimPID.calculate(bottomShoterVelocity, bottomSetpoint)
-            + bottomSimFeedforward.calculate(bottomSetpoint);
+    rightAppliedVoltage =
+        rightSimPID.calculate(rightShoterVelocity, rightSetpoint)
+            + rightSimFeedforward.calculate(rightSetpoint);
+    leftAppliedVoltage =
+        leftSimPID.calculate(leftShoterVelocity, leftSetpoint)
+            + leftSimFeedforward.calculate(leftSetpoint);
 
-    topSimMotor.setInputVoltage(topAppliedVoltage);
-    bottomSimMotor.setInputVoltage(bottomAppliedVoltage);
+    rightSimMotor.setInputVoltage(rightAppliedVoltage);
+    leftSimMotor.setInputVoltage(leftAppliedVoltage);
   }
 
   // TODO are separate velocities needed for top and bottom?
-  private void setVelocity(double topSetpoint, double bottomSetpoint) {
+  private void setVelocity(double rightSetpoint, double leftSetpoint) {
     shooterAtRest = false;
-    this.topSetpoint = topSetpoint;
-    this.bottomSetpoint = bottomSetpoint;
+    this.rightSetpoint = rightSetpoint;
+    this.leftSetpoint = leftSetpoint;
   }
 
   // TODO this check should use the target set points that are passed into
@@ -168,8 +170,8 @@ public class Shooter extends SubsystemBase implements Logged {
 
   private void ShooterRest() {
     shooterAtRest = true;
-    topSetpoint = 0.0;
-    bottomSetpoint = 0.0;
+    rightSetpoint = 0.0;
+    leftSetpoint = 0.0;
     rightController.setReference(0.0, ControlType.kVoltage);
     leftController.setReference(0.0, ControlType.kVoltage);
   }
@@ -179,9 +181,9 @@ public class Shooter extends SubsystemBase implements Logged {
         Commands.runOnce(() -> ShooterRest(), this), Commands.waitUntil(() -> checkRestVelocity()));
   }
 
-  public Command setVelocityCommand(double topSetpoint, double bottomSetpoint) {
+  public Command setVelocityCommand(double rightSetpoint, double leftSetpoint) {
     return Commands.sequence(
-        Commands.runOnce(() -> setVelocity(topSetpoint, bottomSetpoint), this),
+        Commands.runOnce(() -> setVelocity(rightSetpoint, leftSetpoint), this),
         Commands.waitUntil(() -> checkVelocitySpeaker()));
   }
 }

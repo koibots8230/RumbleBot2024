@@ -185,10 +185,10 @@ public class Constants {
 
     // 4
 
-    public static final MotorConfig TOP_MOTOR_CONFIG =
+    public static final MotorConfig RIGHT_MOTOR_CONFIG =
         new MotorConfig.Builder().inverted(true).currentLimit(60).idleMode(IdleMode.kCoast).build();
 
-    public static final MotorConfig BOTTOM_MOTOR_CONFIG =
+    public static final MotorConfig LEFT_MOTOR_CONFIG =
         new MotorConfig.Builder()
             .inverted(false)
             .currentLimit(60)
