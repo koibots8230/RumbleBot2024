@@ -3,13 +3,19 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.AbsoluteEncoder;
-import com.revrobotics.CANSparkBase.ControlType;
-import com.revrobotics.CANSparkFlex;
-import com.revrobotics.CANSparkLowLevel.MotorType;
-import com.revrobotics.CANSparkLowLevel.PeriodicFrame;
-import com.revrobotics.CANSparkMax;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.SparkPIDController;
+import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkClosedLoopController;
+import com.revrobotics.spark.SparkFlex;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.config.SparkFlexConfig;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.SparkMax;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
@@ -21,20 +27,23 @@ import monologue.Annotations.Log;
 import monologue.Logged;
 
 public class SwerveModule implements Logged {
-  private final CANSparkMax turnMotor;
+  private final SparkMax turnMotor;
+  private final SparkMaxConfig turnConfig;
   private final AbsoluteEncoder turnEncoder;
 
-  private final SparkPIDController turnPID;
+  private final SparkClosedLoopController turnPID;
   private final SimpleMotorFeedforward turnFF;
 
   private final TrapezoidProfile turnProfile;
   private TrapezoidProfile.State turnGoalState;
   private TrapezoidProfile.State turnSetpointState;
 
-  private final CANSparkFlex driveMotor;
+  private final SparkFlex driveMotor;
   private final RelativeEncoder driveEncoder;
 
-  private final SparkPIDController drivePID;
+  private final SparkFlexConfig driveConfig;
+
+  private final SparkClosedLoopController drivePID;
 
   private final Rotation2d angleOffset;
 
@@ -54,38 +63,37 @@ public class SwerveModule implements Logged {
   @Log private double driveVoltage;
 
   public SwerveModule(int turnID, int driveID, Rotation2d angleOffset) {
-    turnMotor = new CANSparkMax(turnID, MotorType.kBrushless);
+    turnMotor = new SparkMax(turnID, MotorType.kBrushless);
 
-    turnMotor.restoreFactoryDefaults();
     turnMotor.clearFaults();
 
-    turnMotor.setSmartCurrentLimit(SwerveConstants.TURN_MOTOR_CONFIG.currentLimit);
-    turnMotor.setInverted(SwerveConstants.TURN_MOTOR_CONFIG.inverted);
-    turnMotor.setIdleMode(SwerveConstants.TURN_MOTOR_CONFIG.idleMode);
-    turnMotor.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
+    turnConfig = new SparkMaxConfig();
+
+    turnConfig.smartCurrentLimit(SwerveConstants.TURN_MOTOR_CONFIG.currentLimit);
+    turnConfig.inverted(SwerveConstants.TURN_MOTOR_CONFIG.inverted);
+    turnConfig.idleMode(SwerveConstants.TURN_MOTOR_CONFIG.idleMode);
+    turnConfig.voltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
     turnMotor.setCANTimeout((int) RobotConstants.CAN_TIMEOUT.in(Milliseconds));
 
-    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 32767);
-    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 32767);
-    turnMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 3);
+    turnConfig.absoluteEncoder.positionConversionFactor(
+        SwerveConstants.TURN_ENCODER_POSITION_FACTOR.in(Radians));
+      turnConfig.absoluteEncoder.velocityConversionFactor(
+        SwerveConstants.TURN_ENCODER_VELOCITY_FACTOR.in(RadiansPerSecond));
+
+    turnConfig.absoluteEncoder.inverted(true);
+
+    turnConfig.closedLoop.feedbackSensor(null);
+    turnConfig.closedLoop.p(SwerveConstants.TURN_PID_GAINS.kp);
+    turnConfig.closedLoop.positionWrappingEnabled(true);
+    turnConfig.closedLoop.positionWrappingInputRange(-Math.PI, Math.PI);
+
+    turnConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
+
+    turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     turnEncoder = turnMotor.getAbsoluteEncoder();
 
-    turnEncoder.setPositionConversionFactor(
-        SwerveConstants.TURN_ENCODER_POSITION_FACTOR.in(Radians));
-    turnEncoder.setVelocityConversionFactor(
-        SwerveConstants.TURN_ENCODER_VELOCITY_FACTOR.in(RadiansPerSecond));
-
-    turnEncoder.setInverted(true);
-
-    turnPID = turnMotor.getPIDController();
-    turnPID.setFeedbackDevice(turnEncoder);
-
-    turnPID.setP(SwerveConstants.TURN_PID_GAINS.kp);
-
-    turnPID.setPositionPIDWrappingEnabled(true);
-    turnPID.setPositionPIDWrappingMaxInput(Math.PI);
-    turnPID.setPositionPIDWrappingMinInput(-Math.PI);
+    turnPID = turnMotor.getClosedLoopController();
 
     turnFF =
         new SimpleMotorFeedforward(
@@ -100,39 +108,33 @@ public class SwerveModule implements Logged {
     turnGoalState = new TrapezoidProfile.State(0, 0);
     turnSetpointState = new TrapezoidProfile.State(0, 0);
 
-    driveMotor = new CANSparkFlex(driveID, MotorType.kBrushless);
+    driveMotor = new SparkFlex(driveID, MotorType.kBrushless);
 
-    driveMotor.restoreFactoryDefaults();
     driveMotor.clearFaults();
 
-    driveMotor.setSmartCurrentLimit(SwerveConstants.DRIVE_MOTOR_CONFIG.currentLimit);
-    driveMotor.setInverted(SwerveConstants.DRIVE_MOTOR_CONFIG.inverted);
-    driveMotor.setIdleMode(SwerveConstants.DRIVE_MOTOR_CONFIG.idleMode);
-    driveMotor.enableVoltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
+    driveConfig = new SparkFlexConfig();
+
+    driveConfig.smartCurrentLimit(SwerveConstants.DRIVE_MOTOR_CONFIG.currentLimit);
+    driveConfig.inverted(SwerveConstants.DRIVE_MOTOR_CONFIG.inverted);
+    driveConfig.idleMode(SwerveConstants.DRIVE_MOTOR_CONFIG.idleMode);
+    driveConfig.voltageCompensation(RobotConstants.NOMINAL_VOLTAGE.in(Volts));
     driveMotor.setCANTimeout((int) RobotConstants.CAN_TIMEOUT.in(Milliseconds));
 
-    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus2, 3);
-    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus3, 32767);
-    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus4, 32767);
-    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus5, 32767);
-    driveMotor.setPeriodicFramePeriod(PeriodicFrame.kStatus6, 32767);
+
+    driveConfig.encoder.positionConversionFactor(
+        SwerveConstants.DRIVE_ENCODER_POSITION_FACTOR.in(Meters));
+    driveConfig.encoder.velocityConversionFactor(
+        SwerveConstants.DRIVE_ENCODER_VELOCITY_FACTOR.in(MetersPerSecond));
+    driveConfig.encoder.uvwAverageDepth(2);
+    driveConfig.encoder.uvwMeasurementPeriod(8);
+
+    driveConfig.closedLoop.p(SwerveConstants.DRIVE_PID_GAINS.kp);
+    driveConfig.closedLoop.velocityFF(SwerveConstants.DRIVE_FF_GAINS.kv);
+
+    driveMotor.configure(driveConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    drivePID = driveMotor.getClosedLoopController();
 
     driveEncoder = driveMotor.getEncoder();
-
-    driveEncoder.setPositionConversionFactor(
-        SwerveConstants.DRIVE_ENCODER_POSITION_FACTOR.in(Meters));
-    driveEncoder.setVelocityConversionFactor(
-        SwerveConstants.DRIVE_ENCODER_VELOCITY_FACTOR.in(MetersPerSecond));
-
-    driveEncoder.setPosition(0);
-    driveEncoder.setAverageDepth(2);
-    driveEncoder.setMeasurementPeriod(8);
-
-    drivePID = driveMotor.getPIDController();
-    drivePID.setFeedbackDevice(driveEncoder);
-
-    drivePID.setP(SwerveConstants.DRIVE_PID_GAINS.kp);
-    drivePID.setFF(SwerveConstants.DRIVE_FF_GAINS.kv);
 
     turnSetpoint = Rotation2d.fromRadians(0);
     turnPosition = Rotation2d.fromRadians(0);
@@ -159,7 +161,7 @@ public class SwerveModule implements Logged {
     turnPID.setReference(
         optimizedState.angle.getRadians() + angleOffset.getRadians(),
         ControlType.kPosition,
-        0,
+        ClosedLoopSlot.kSlot0,
         turnFF.calculate(turnSetpointState.velocity));
 
     drivePID.setReference(optimizedState.speedMetersPerSecond, ControlType.kVelocity);

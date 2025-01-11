@@ -2,14 +2,13 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
-import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
-import com.pathplanner.lib.util.ReplanningConfig;
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
-import edu.wpi.first.units.*;
+import edu.wpi.first.units.measure.*;
 import frc.lib.util.FeedforwardGains;
 import frc.lib.util.MotorConfig;
 import frc.lib.util.PIDGains;
@@ -17,15 +16,15 @@ import frc.lib.util.Wheel;
 
 public class Constants {
   public static class RobotConstants {
-    public static final Measure<Distance> WIDTH = Inches.of(26.0);
-    public static final Measure<Distance> LENGTH = Inches.of(26.0);
+    public static final Distance WIDTH = Inches.of(26.0);
+    public static final Distance LENGTH = Inches.of(26.0);
 
-    public static final Measure<Distance> BUMPER_WIDTH = Inches.of(39.250);
-    public static final Measure<Distance> BUMPER_LENGTH = Inches.of(39.250);
+    public static final Distance BUMPER_WIDTH = Inches.of(39.250);
+    public static final Distance BUMPER_LENGTH = Inches.of(39.250);
 
-    public static final Measure<Voltage> NOMINAL_VOLTAGE = Volts.of(12);
+    public static final Voltage NOMINAL_VOLTAGE = Volts.of(12);
 
-    public static final Measure<Time> CAN_TIMEOUT = Milliseconds.of(20);
+    public static final Time CAN_TIMEOUT = Milliseconds.of(20);
 
     public static final double JOYSTICK_DEADBAND = 0.05;
   }
@@ -44,16 +43,16 @@ public class Constants {
   public static class AlignConstants {
     public static final PIDGains ASSIST_GAINS = new PIDGains.Builder().kp(10).build();
 
-    public static final Measure<Distance> AMP_MIN_DISTANCE = Meters.of(0.5);
+    public static final Distance AMP_MIN_DISTANCE = Meters.of(0.5);
     public static final Rotation2d AMP_ALLOWED_ANGLE_MARGIN = new Rotation2d(Math.PI / 6.0);
 
-    public static final Measure<Distance> NOTE_MIN_DISTANCE = Meters.of(0.75);
+    public static final Distance NOTE_MIN_DISTANCE = Meters.of(0.75);
     public static final Rotation2d NOTE_ALLOWED_ANGLE_MARGIN =
         Rotation2d.fromRadians(Math.PI / 4.0);
     public static final Rotation2d NOTE_ALLOWED_DIRECTION_MARGIN =
         Rotation2d.fromRadians(Math.PI / 3.0);
 
-    public static final Measure<Distance> SUBWOOFER_EXTENSION = Inches.of(36.125);
+    public static final Distance SUBWOOFER_EXTENSION = Inches.of(36.125);
   }
 
   public static class IndexerConstants {
@@ -65,23 +64,23 @@ public class Constants {
     public static final FeedforwardGains BOTTOM_FEEDFORWARD_GAINS =
         new FeedforwardGains.Builder().kv(0).build();
 
-    public static final Measure<Velocity<Angle>> TOP_INTAKING_SPEED = RPM.of(200);
-    public static final Measure<Velocity<Angle>> BOTTOM_INTAKING_SPEED = RPM.of(400);
+    public static final AngularVelocity TOP_INTAKING_SPEED = RPM.of(200);
+    public static final AngularVelocity BOTTOM_INTAKING_SPEED = RPM.of(400);
 
-    public static final Measure<Velocity<Angle>> TOP_AMP_SPEED = RPM.of(-200);
-    public static final Measure<Velocity<Angle>> BOTTOM_AMP_SPEED = RPM.of(-400);
+    public static final AngularVelocity TOP_AMP_SPEED = RPM.of(-200);
+    public static final AngularVelocity BOTTOM_AMP_SPEED = RPM.of(-400);
 
-    public static final Measure<Velocity<Angle>> TOP_ALIGNING_SPEED = RPM.of(400);
-    public static final Measure<Velocity<Angle>> BOTTOM_ALIGNING_SPEED = RPM.of(400);
+    public static final AngularVelocity TOP_ALIGNING_SPEED = RPM.of(400);
+    public static final AngularVelocity BOTTOM_ALIGNING_SPEED = RPM.of(400);
 
-    public static final Measure<Velocity<Angle>> TOP_SHOOTING_SPEED = RPM.of(600);
-    public static final Measure<Velocity<Angle>> BOTTOM_SHOOTING_SPEED = RPM.of(1200);
+    public static final AngularVelocity TOP_SHOOTING_SPEED = RPM.of(600);
+    public static final AngularVelocity BOTTOM_SHOOTING_SPEED = RPM.of(1200);
 
-    public static final Measure<Velocity<Angle>> TOP_REVERSE_SPEED = RPM.of(-200);
-    public static final Measure<Velocity<Angle>> BOTTOM_REVERSE_SPEED = RPM.of(-400);
+    public static final AngularVelocity TOP_REVERSE_SPEED = RPM.of(-200);
+    public static final AngularVelocity BOTTOM_REVERSE_SPEED = RPM.of(-400);
 
-    public static final Measure<Velocity<Angle>> TOP_MOTOR_STOP = RPM.of(0);
-    public static final Measure<Velocity<Angle>> BOTTOM_MOTOR_STOP = RPM.of(0);
+    public static final AngularVelocity TOP_MOTOR_STOP = RPM.of(0);
+    public static final AngularVelocity BOTTOM_MOTOR_STOP = RPM.of(0);
 
     public static final double TOP_GEAR_RATIO = 1.0 / 27.0;
     public static final double BOTTOM_GEAR_RATIO = 1.0 / 27.0;
@@ -108,19 +107,19 @@ public class Constants {
     public static final FeedforwardGains SIM_FEEDFORWARD_GAINS =
         new FeedforwardGains.Builder().ks(0.0).kv(9.0).ka(0.0).kg(0.143607).build();
 
-    public static final Measure<Velocity<Distance>> MAX_VELOCITY = MetersPerSecond.of(1);
-    public static final Measure<Velocity<Velocity<Distance>>> MAX_ACCELERATION =
+    public static final LinearVelocity MAX_VELOCITY = MetersPerSecond.of(1);
+    public static final LinearAcceleration MAX_ACCELERATION =
         MetersPerSecondPerSecond.of(1);
 
-    public static final Measure<Distance> AMP_POSITION = Inches.of(6);
-    public static final Measure<Distance> SHOOTING_POSITION = Inches.of(0.1);
+    public static final Distance AMP_POSITION = Inches.of(6);
+    public static final Distance SHOOTING_POSITION = Inches.of(0.1);
 
     public static final double GEAR_RATIO = 10;
-    public static final Measure<Distance> DRUM_SIZE = Inches.of(1);
+    public static final Distance DRUM_SIZE = Inches.of(1);
 
-    public static final Measure<Distance> MAX_HEIGHT = Inches.of(6);
+    public static final Distance MAX_HEIGHT = Inches.of(6);
 
-    public static final Measure<Distance> ALLOWED_ERROR = Inches.of(0.05);
+    public static final Distance ALLOWED_ERROR = Inches.of(0.05);
 
     public static final MotorConfig LEFT_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(60).build();
@@ -204,14 +203,14 @@ public class Constants {
 
   public static class SwerveConstants {
 
-    public static final Measure<Velocity<Distance>> MAX_LINEAR_SPEED = MetersPerSecond.of(4.125);
+    public static final LinearVelocity MAX_LINEAR_SPEED = MetersPerSecond.of(4.125);
 
-    public static final Measure<Velocity<Angle>> MAX_ANGULAR_VELOCITY =
+    public static final AngularVelocity MAX_ANGULAR_VELOCITY =
         RadiansPerSecond.of(2 * Math.PI);
 
-    public static final Measure<Velocity<Angle>> MAX_TURN_VELOCITY =
+    public static final AngularVelocity MAX_TURN_VELOCITY =
         RadiansPerSecond.of(2 * Math.PI);
-    public static final Measure<Velocity<Velocity<Angle>>> MAX_TURN_ACCELERATION =
+    public static final AngularAcceleration MAX_TURN_ACCELERATION =
         RadiansPerSecond.per(Second).of(Math.PI * 4);
 
     public static final SwerveDriveKinematics KINEMATICS =
@@ -249,13 +248,13 @@ public class Constants {
 
     public static final Wheel WHEELS = new Wheel(Inches.of(1.5));
 
-    public static final Measure<Angle> TURN_ENCODER_POSITION_FACTOR = Radians.of(2 * Math.PI);
-    public static final Measure<Velocity<Angle>> TURN_ENCODER_VELOCITY_FACTOR =
+    public static final Angle TURN_ENCODER_POSITION_FACTOR = Radians.of(2 * Math.PI);
+    public static final AngularVelocity TURN_ENCODER_VELOCITY_FACTOR =
         RadiansPerSecond.of((2 * Math.PI) / 60.0);
 
-    public static final Measure<Distance> DRIVE_ENCODER_POSITION_FACTOR =
+    public static final Distance DRIVE_ENCODER_POSITION_FACTOR =
         Inches.of((1.5 * 2 * Math.PI) / DRIVE_GEAR_RATIO);
-    public static final Measure<Velocity<Distance>> DRIVE_ENCODER_VELOCITY_FACTOR =
+    public static final LinearVelocity DRIVE_ENCODER_VELOCITY_FACTOR =
         MetersPerSecond.of(((WHEELS.radius.in(Meters) * 2 * Math.PI) / DRIVE_GEAR_RATIO) / 60.0);
 
     public static final int FRONT_LEFT_DRIVE_ID = 1;
@@ -270,20 +269,9 @@ public class Constants {
     public static final int GYRO_ID = 18;
 
     // ====================AUTO====================
-    public static final Measure<Distance> REPLANNING_ERROR_THRESHOLD = Meters.of(1);
-    public static final Measure<Distance> REPLANNING_ERROR_SPIKE_THRESHOLD = Meters.of(1);
+    public static final Distance REPLANNING_ERROR_THRESHOLD = Meters.of(1);
+    public static final Distance REPLANNING_ERROR_SPIKE_THRESHOLD = Meters.of(1);
 
-    public static final HolonomicPathFollowerConfig SWERVE_CONFIG =
-        new HolonomicPathFollowerConfig(
-            SwerveConstants.MAX_LINEAR_SPEED.in(MetersPerSecond),
-            Math.sqrt(
-                Math.pow(RobotConstants.LENGTH.in(Meters), 2)
-                    + Math.pow(RobotConstants.WIDTH.in(Meters), 2)),
-            new ReplanningConfig(
-                false,
-                true,
-                REPLANNING_ERROR_THRESHOLD.in(Meters),
-                REPLANNING_ERROR_SPIKE_THRESHOLD.in(Meters)));
     public static final PIDGains AUTO_TRANSLATION_PID =
         new PIDGains.Builder().kp(0).ki(0).kd(0).build();
     public static final PIDGains AUTO_ROTATION_PID =
@@ -292,11 +280,11 @@ public class Constants {
 
   public static class IntakeConstants {
 
-    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_SETPOINT = RPM.of(600);
+    public static final AngularVelocity INTAKE_MOTOR_SETPOINT = RPM.of(600);
 
-    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_REVERSE_SETPOINT = RPM.of(-600);
+    public static final AngularVelocity INTAKE_MOTOR_REVERSE_SETPOINT = RPM.of(-600);
 
-    public static final Measure<Velocity<Angle>> INTAKE_MOTOR_STOP = RPM.of(0);
+    public static final AngularVelocity INTAKE_MOTOR_STOP = RPM.of(0);
 
     public static final int INTAKE_MOTOR_PORT = 9;
 
@@ -324,7 +312,7 @@ public class Constants {
     public static final double[] VECTOR_DEFAULT_VALUE = {0};
     public static final int ID_DEFAULT_VALUE = 0;
 
-    public static final Measure<Distance> MAX_MEASUREMENT_DIFFERENCE = Meters.of(1.5);
+    public static final Distance MAX_MEASUREMENT_DIFFERENCE = Meters.of(1.5);
     public static final Rotation2d MAX_ANGLE_DIFFERENCE = Rotation2d.fromDegrees(10);
 
     public static final double ROTATION_STDEV = 50 * Math.PI;

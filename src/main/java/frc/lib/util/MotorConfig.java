@@ -1,6 +1,6 @@
 package frc.lib.util;
 
-import com.revrobotics.CANSparkBase.IdleMode;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 public class MotorConfig {
   // These are public properties which allow them to be accessed directly without need for get/set
