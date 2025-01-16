@@ -129,6 +129,11 @@ public class Swerve extends SubsystemBase implements Logged {
       odometryPose = odometry.update(Rotation2d.fromRadians(gyro.getAngle()), getModulePositions());
     }
 
+    modules[0].periodic();
+    modules[1].periodic();
+    modules[2].periodic();
+    modules[3].periodic();
+
     gyroAngle = gyro.getRotation2d();
 
     measuredStates[0] = modules[0].getState().angle.getRadians();

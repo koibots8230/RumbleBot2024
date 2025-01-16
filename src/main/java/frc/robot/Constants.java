@@ -220,13 +220,13 @@ public class Constants {
             new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(2)),
             new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(-2)));
 
-    public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0).build();
+    public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0.043).build();
     public static final FeedforwardGains DRIVE_FF_GAINS =
-        new FeedforwardGains.Builder().kv(0.1).build();
+        new FeedforwardGains.Builder().kv(0.221).build();
 
-    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0.4).build();
+    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0.04).build();
     public static final FeedforwardGains TURN_FF_GAINS =
-        new FeedforwardGains.Builder().ks(0.3).kv(0.35).build();
+        new FeedforwardGains.Builder().ks(0).kv(0.35).build();
 
     public static final PIDGains ANGLE_PID_GAINS = new PIDGains.Builder().kp(30).kd(0).build();
 
@@ -237,10 +237,10 @@ public class Constants {
 
     public static final Rotation2d[] ANGLE_OFFSETS =
         new Rotation2d[] {
-          Rotation2d.fromRadians((3 * Math.PI) / 2.0),
+          Rotation2d.fromRadians(Math.PI / 2.0),
           Rotation2d.fromRadians(Math.PI),
           Rotation2d.fromRadians(0),
-          Rotation2d.fromRadians(Math.PI / 2.0)
+          Rotation2d.fromRadians((3 * Math.PI) / 2.0)
         };
 
     private static final int DRIVING_PINION_TEETH = 13;

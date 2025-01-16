@@ -3,6 +3,7 @@ package frc.robot.subsystems.swerve;
 import static edu.wpi.first.units.Units.*;
 
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.REVLibError;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
@@ -82,14 +83,18 @@ public class SwerveModule implements Logged {
 
     turnConfig.absoluteEncoder.inverted(true);
 
-    turnConfig.closedLoop.feedbackSensor(null);
     turnConfig.closedLoop.p(SwerveConstants.TURN_PID_GAINS.kp);
     turnConfig.closedLoop.positionWrappingEnabled(true);
     turnConfig.closedLoop.positionWrappingInputRange(-Math.PI, Math.PI);
 
     turnConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
-    turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    turnConfig.absoluteEncoder.inverted(true);
+
+    turnConfig.signals.absoluteEncoderPositionPeriodMs(1);
+
+    REVLibError error = turnMotor.configure(turnConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    System.out.println(error == REVLibError.kOk);
 
     turnEncoder = turnMotor.getAbsoluteEncoder();
 
@@ -172,7 +177,7 @@ public class SwerveModule implements Logged {
 
     turnPosition = Rotation2d.fromRadians(turnEncoder.getPosition() - angleOffset.getRadians());
     turnVelocity = turnEncoder.getVelocity();
-
+    System.out.println(turnPosition);
     turnCurrent = turnMotor.getOutputCurrent();
     turnVoltage = turnMotor.getBusVoltage() * turnMotor.getAppliedOutput();
 
