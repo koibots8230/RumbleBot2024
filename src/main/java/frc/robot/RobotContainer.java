@@ -4,9 +4,11 @@
 
 package frc.robot;
 
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.subsystems.swerve.Swerve;
 import monologue.Logged;
 import monologue.Monologue;
@@ -16,9 +18,12 @@ public class RobotContainer implements Logged {
   private XboxController controller;
 
   private final Swerve swerve;
+  private final Intake intake;
 
   public RobotContainer(boolean isReal) {
     controller = new XboxController(0);
+
+    intake = new Intake();
 
     swerve = new Swerve(isReal);
 
@@ -29,6 +34,15 @@ public class RobotContainer implements Logged {
   }
 
   private void configureBindings() {
+
+    Trigger run = new Trigger(() -> controller.getRightTriggerAxis() > .15);
+    run.onTrue(intake.IntakeCommand(Units.RPM.of(1000)));
+    run.onFalse(intake.IntakeCommand(Units.RPM.of(0)));
+
+    Trigger runrevese = new Trigger(() -> controller.getLeftTriggerAxis() > .15);
+    runrevese.onTrue(intake.IntakeCommand(Units.RPM.of(-1000)));
+    runrevese.onFalse(intake.IntakeCommand(Units.RPM.of(0)));
+
   }
 
   private void subsystemDefualtCommands() {

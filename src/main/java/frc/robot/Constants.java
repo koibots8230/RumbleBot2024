@@ -220,15 +220,15 @@ public class Constants {
             new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(2)),
             new Translation2d(RobotConstants.LENGTH.divide(-2), RobotConstants.WIDTH.divide(-2)));
 
-    public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0.043).build();
+    public static final PIDGains DRIVE_PID_GAINS = new PIDGains.Builder().kp(0.0001).build();
     public static final FeedforwardGains DRIVE_FF_GAINS =
-        new FeedforwardGains.Builder().kv(0.221).build();
+        new FeedforwardGains.Builder().kv(0.2).build();
 
-    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0.04).build();
+    public static final PIDGains TURN_PID_GAINS = new PIDGains.Builder().kp(0.2).build();
     public static final FeedforwardGains TURN_FF_GAINS =
-        new FeedforwardGains.Builder().ks(0).kv(0.35).build();
+        new FeedforwardGains.Builder().ks(0).kv(0.0).build();
 
-    public static final PIDGains ANGLE_PID_GAINS = new PIDGains.Builder().kp(30).kd(0).build();
+    public static final PIDGains ANGLE_PID_GAINS = new PIDGains.Builder().kp(0).kd(0).build();
 
     public static final MotorConfig DRIVE_MOTOR_CONFIG =
         new MotorConfig.Builder().currentLimit(60).build();
